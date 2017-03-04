@@ -24,7 +24,6 @@ We choose to use the [Ether.Network][ethernetwork] because it provides a clients
 
 ## Project features
 
-- InterServer communication (ISC)
 - Login Server
 - Cluster Server
     - Create/Delete character
@@ -79,16 +78,10 @@ We choose to use the [Ether.Network][ethernetwork] because it provides a clients
 This is a simple scheme representing the Hellion architecture.
 As we see, you have a total of 4 servers:
 
-- ISC (Inter Server comunication)
-- Login Server
+- Login Server (With InterServer Communicator)
 - Cluster Server
 - World Server
 
-
-### ISC
-
-The ISC is the InterServer that comunicates with all your servers.
-To start any other server, you **must** start the ISC for your servers connect to him.
 
 ### Login Server
 
@@ -115,10 +108,9 @@ Don't worry, tutorials will follow once the World Server can be started.
 1. Clone this repository
 2. Install MySQL Server on your computer/server
 3. Execute the `sql/hellion.sql` file in your MySQL server to setup the database.
-4. Configure the 4 servers (ISC, Login, Cluster, World)
+4. Configure the 3 servers (Login, Cluster, World)
 5. Restore all dependencies using `restore.bat`
 6. Start the servers
-   - Start `binar/ISC.bat`
    - Start `binary/LoginServer.bat`
    - Start `binary/ClusterServer.bat`
    - Start `binary/WorldServer.bat`

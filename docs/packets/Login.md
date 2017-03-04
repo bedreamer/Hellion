@@ -25,7 +25,7 @@
 
 for (int i = 0; i < serverCount; ++i)
 {
-    [int] clusterId (-1 when it's a ClusterServer)
+    [int] clusterId // (-1 when it's a ClusterServer)
     [int] serverId
     [string] serverName
     [string] host ip

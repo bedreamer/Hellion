@@ -1,5 +1,15 @@
 ## Hellion ChangeLog
 
+### Update #12
+
+Date: 04/03/2017
+
+- Documentation
+  - New packet documentation structure
+- Remove ISC Project
+- LoginServer
+  - Built in with ISC
+
 ### Update #11
 
 Date : 24/02/2017

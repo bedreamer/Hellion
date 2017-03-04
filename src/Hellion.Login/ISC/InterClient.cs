@@ -1,11 +1,11 @@
 ﻿using Ether.Network;
+using System.Net.Sockets;
 using Ether.Network.Packets;
+using Hellion.Core.ISC.Structures;
 using Hellion.Core.Data.Headers;
 using Hellion.Core.IO;
-using Hellion.Core.ISC.Structures;
-using System.Net.Sockets;
 
-namespace Hellion.ISC
+namespace Hellion.Login.ISC
 {
     public partial class InterClient : NetConnection
     {
@@ -30,35 +30,35 @@ namespace Hellion.ISC
         public InterClient()
             : base()
         {
-            this.ServerType = InterServerType.None;
         }
 
         /// <summary>
         /// Creates a new InterClient instance.
         /// </summary>
-        /// <param name="socket">Socket</param>
-        public InterClient(Socket socket)
-            : base(socket)
+        /// <param name="acceptedSocket"></param>
+        public InterClient(Socket acceptedSocket) 
+            : base(acceptedSocket)
         {
-            this.ServerType = InterServerType.None;
+            
         }
-        
+
         /// <summary>
-        /// Sends a welcome message to the inter client.
+        /// Send a welcome message to the client.
         /// </summary>
         public override void Greetings()
         {
-            var packet = new NetPacket();
+            using (var packet = new NetPacket())
+            {
+                packet.Write((int)InterHeaders.CanAuthticate);
 
-            packet.Write((int)InterHeaders.CanAuthticate);
-
-            this.Send(packet);
+                this.Send(packet);
+            }
         }
 
         /// <summary>
-        /// Handles the incoming message.
+        /// Handles the incoming messages.
         /// </summary>
-        /// <param name="packet">Packet</param>
+        /// <param name="packet"></param>
         public override void HandleMessage(NetPacketBase packet)
         {
             var packetHeaderNumber = packet.Read<int>();
@@ -66,7 +66,7 @@ namespace Hellion.ISC
 
             switch (packetHeader)
             {
-                case InterHeaders.Authentication: this.OnAuthentication(packet); break;
+                case InterHeaders.Authentication: this.OnAuthenticate(packet); break;
 
                 default:
                     Log.Warning("Unknow packet: 0x{0}", packetHeaderNumber.ToString("X2"));
@@ -79,22 +79,20 @@ namespace Hellion.ISC
         /// </summary>
         internal void Disconnected()
         {
-            //if (this.ServerInfo is LoginServerInfo)
-            //    Log.Info("LoginServer disconnected.");
-            //else if (this.ServerInfo is ClusterServerInfo)
-            //{
-            //    var clusterInfo = this.ServerInfo as ClusterServerInfo;
+            if (this.ServerInfo is ClusterServerInfo)
+            {
+                var clusterInfo = this.ServerInfo as ClusterServerInfo;
 
-            //    Log.Info("ClusterServer '{0}' disconnected.", clusterInfo.Name);
-            //}
-            //else if (this.ServerInfo is WorldServerInfo)
-            //{
-            //    var worldInfo = this.ServerInfo as WorldServerInfo;
+                Log.Info("ClusterServer '{0}' disconnected.", clusterInfo.Name);
+            }
+            else if (this.ServerInfo is WorldServerInfo)
+            {
+                var worldInfo = this.ServerInfo as WorldServerInfo;
 
-            //    Log.Info("WorldServer '{0}' disconnected.", worldInfo.Name);
-            //}
-            //else
-            //    Log.Info("Unknow client disconnected.");
+                Log.Info("WorldServer '{0}' disconnected.", worldInfo.Name);
+            }
+            else
+                Log.Info("Unknow client disconnected.");
         }
     }
 }
