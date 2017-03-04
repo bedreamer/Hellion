@@ -2,22 +2,13 @@
 
 In this documentation, you will find every FlyFF packets structure, client and servers.
 
-You will also find the packets structure of the Hellion Inter-Server Communication (ISC) which is completly dependent of FlyFF's packets.
+## Packets list
 
-
-The packets documentation is structured in two parts:
-
-- The packets structure sent by the client to the servers, also known as **Incoming Packets**
-- The packets structure sent by the server to the clients, also known as **Outgoing Packets**
+| Packet Name | Packet Value | Source | Destination | Description |
+| ----------- | ------------ | ----------- | ----------- | ----------- |
+| [CERTIFY](/docs/packets/Login.md#CERTIFY) | `0x000000FC` | Client | Login Server |The client sends to the server a login request. |
 
 ## Documentation
 
-- [Inter-Server packets][isc]
-- [Login Packets][login]
-- [Cluster Packets][cluster]
-- [World Packets][world]
-
-[isc]: /doc/packets/ISC.md
-[login]: /doc/packets/Login.md
-[cluster]: /doc/packets/Cluster.md
-[world]: /doc/packets/World.md
+[packetType]: /src/Hellion.Core/Data/Headers/PacketType.cs
+[snapshotType]: /src/Hellion.Core/Data/Headers/SnapshotType.cs
