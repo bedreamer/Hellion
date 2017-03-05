@@ -23,6 +23,7 @@ namespace Hellion.World
         private static Dictionary<int, MonsterData> monstersData = new Dictionary<int, MonsterData>();
         private static Dictionary<string, DialogData> dialogData = new Dictionary<string, DialogData>();
         private static Dictionary<string, NPCData> npcData = new Dictionary<string, NPCData>();
+        private static Dictionary<int, SkillData> skillData = new Dictionary<int, SkillData>();
         private static MapManager mapManager;
 
         /// <summary>
@@ -66,6 +67,14 @@ namespace Hellion.World
         }
 
         /// <summary>
+        /// Gets the skills data.
+        /// </summary>
+        public static Dictionary<int, SkillData> SkillData
+        {
+            get { return skillData; }
+        }
+
+        /// <summary>
         /// Loads the world server data like resources, maps, quests, dialogs, etc...
         /// </summary>
         private void LoadData()
@@ -78,6 +87,7 @@ namespace Hellion.World
             this.LoadItems();
             this.LoadNpc();
             this.LoadMovers();
+            this.LoadSkills();
             this.LoadMaps();
             this.Clear();
 
@@ -354,6 +364,56 @@ namespace Hellion.World
             catch (Exception e)
             {
                 Log.Error("Cannot load items: {0}", e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Load flyff skills and levels.
+        /// </summary>
+        private void LoadSkills()
+        {
+            try
+            {
+                Log.Info("Loading skills...");
+                string propSkillPath = Path.Combine(Global.DataPath, "res", "data", "propSkill.txt");
+                var propSkillTable = new ResourceTable(propSkillPath);
+
+                propSkillTable.AddTexts(texts);
+                propSkillTable.AddDefines(defines);
+                propSkillTable.SetTableHeaders("ver", "dwID", "szName", "dwNum", "dwPackMax", "dwItemKind1", "dwItemKind2", "dwItemKind3", "dwItemJob", "bPermanence", "dwUseable", "dwItemSex", "dwCost", "dwEndurance", "nAbrasion", "nHardness", "dwHanded", "dwHeelH", "dwParts", "dwPartsub", "bPartFile", "dwExclusive", "dwBasePartsIgnore", "dwItemLV", "dwItemRare", "dwShopAble", "bLog", "bCharged", "dwLinkKindBullet", "dwLinkKind", "dwAbilityMin", "dwAbilityMax", "eItemType", "wItemEAtk", "dwparry", "dwblockRating", "dwAddSkillMin", "dwAddSkillMax", "dwAtkStyle", "dwWeaponType", "dwItemAtkOrder1", "dwItemAtkOrder2", "dwItemAtkOrder3", "dwItemAtkOrder4", "tmContinuousPain", "dwShellQuantity", "dwRecoil", "dwLoadingTime", "nAdjHitRate", "dwAttackSpeed", "dwDmgShift", "dwAttackRange", "dwProbability", "dwDestParam1", "dwDestParam2", "dwDestParam3", "nAdjParamVal1", "nAdjParamVal2", "nAdjParamVal3", "dwChgParamVal1", "dwChgParamVal2", "dwChgParamVal3", "dwdestData1", "dwdestData2", "dwdestData3", "dwactiveskill", "dwactiveskillLv", "dwactiveskillper", "dwReqMp", "dwRepFp", "dwReqDisLV", "dwReSkill1", "dwReSkillLevel1", "dwReSkill2", "dwReSkillLevel2", "dwSkillReadyType", "dwSkillReady", "dwSkillRange", "dwSfxElemental", "dwSfxObj", "dwSfxObj2", "dwSfxObj3", "dwSfxObj4", "dwSfxObj5", "dwUseMotion", "dwCircleTime", "dwSkillTime", "dwExeTarget", "dwUseChance", "dwSpellRegion", "dwSpellType", "dwReferStat1", "dwReferStat2", "dwReferTarget1", "dwReferTarget2", "dwReferValue1", "dwReferValue2", "dwSkillType", "fItemResistElecricity", "fItemResistFire", "fItemResistWind", "fItemResistWater", "fItemResistEarth", "nEvildoing", "dwExpertLV", "ExpertMax", "dwSubDefine", "dwExp", "dwComboStyle", "fFlightSpeed", "fFlightLRAngle", "fFlightTBAngle", "dwFlightLimit", "dwFFuelReMax", "dwAFuelReMax", "dwFuelRe", "dwLimitLevel1", "dwReflect", "dwSndAttack1", "dwSndAttack2", "szIcon", "dwQuestID", "szTextFile", "szComment");
+                propSkillTable.Parse();
+
+                while (propSkillTable.Read())
+                {
+                    var skill = new SkillData(propSkillTable);
+
+                    if (skillData.ContainsKey(skill.ID))
+                        skillData[skill.ID] = skill;
+                    else
+                        skillData.Add(skill.ID, skill);
+                }
+
+                string propSkillLevelPath = Path.Combine(Global.DataPath, "res", "data", "propSkillAdd.csv");
+                var propSkillLevelTable = new ResourceTable(propSkillLevelPath);
+                propSkillLevelTable.AddTexts(texts);
+                propSkillLevelTable.AddDefines(defines);
+                propSkillLevelTable.SetTableHeaders("dwLevelID", "dwSkillID", "dwSkillLevel", "dwAbilityMin", "dwAbilityMax", "dwAbilityMinPVP", "dwAbilityMaxPVP", "dwAttackSpeed", "dwDmgShift", "nProbability", "nProbabilityPVP", "dwTaunt", "dwDestParam1", "dwDestParam2", "nAdjParamVal1", "nAdjParamVal2", "dwChgParamVal1", "dwChgParamVal2", "dwDestData1", "dwDestData2", "dwDestData3", "dwActiveSkill", "dwActiveSkillRate", "dwActiveSkillRatePVP", "dwReqMp", "dwReqFp", "dwCooldown", "dwCastingTime", "dwSkillRange", "dwCircleTime", "dwPainTime", "dwSkillTime", "dwSkillCount", "dwSkillExp", "dwExp", "dwComboSkillTime");
+                propSkillLevelTable.Parse();
+
+                while (propSkillLevelTable.Read())
+                {
+                    var skillLevel = new SkillLevelData(propSkillLevelTable);
+
+                    if (skillData.ContainsKey(skillLevel.SkillID))
+                        skillData[skillLevel.SkillID].Levels.Add(skillLevel);
+                }
+
+                Log.Done("{0} skills loaded!", skillData.Count);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Cannot load items: {0}", e.Message);
+
             }
         }
     }

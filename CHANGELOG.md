@@ -9,6 +9,8 @@ Date: 04/03/2017
 - Remove ISC Project
 - LoginServer
   - Built in with ISC
+- World
+  - Skills and Skill levels loading
 
 ### Update #11
 
