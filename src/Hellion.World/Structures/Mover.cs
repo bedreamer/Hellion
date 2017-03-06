@@ -17,7 +17,6 @@ namespace Hellion.World.Structures
         private long nextMove;
         private long lastMoveTime;
 
-
         /// <summary>
         /// Get or sets the mover level.
         /// </summary>
@@ -49,7 +48,7 @@ namespace Hellion.World.Structures
             {
                 float moverSpeed = WorldServer.MonstersData[this.ModelId].Speed;
 
-                return (moverSpeed * 10f) * this.SpeedFactor;
+                return moverSpeed * this.SpeedFactor;
             }
         }
         
@@ -89,6 +88,7 @@ namespace Hellion.World.Structures
             : base(modelId)
         {
             this.nextMove = Time.GetTick() + 10;
+            this.lastMoveTime = Time.GetTick();
             this.Level = 1;
             this.DestinationPosition = new Vector3();
             this.TargetMover = null;
@@ -97,7 +97,6 @@ namespace Hellion.World.Structures
             this.MovingFlags = ObjectState.OBJSTA_STAND;
 
             this.Attributes = new Attributes();
-            this.Attributes[DefineAttributes.SPEED] = 50;
         }
 
         public void Target(Mover mover)
@@ -123,10 +122,10 @@ namespace Hellion.World.Structures
             if (this.DestinationPosition.IsZero())
                 return;
 
-            if (this.nextMove > Time.GetTick())
-                return;
+            //if (this.nextMove > Time.GetTick())
+            //    return;
 
-            this.nextMove = Time.GetTick() + 10;
+            //this.nextMove = Time.GetTick() + 10;
 
             if (this.IsFollowing)
                 this.Follow();
@@ -145,8 +144,8 @@ namespace Hellion.World.Structures
                 Vector3 moveVector = this.Position.Clone();
                 float angle = Vector3.AngleBetween(this.Position, this.DestinationPosition);
                 float angleFly = this.AngleFly;
-                float angleTheta = MathHelper.ToRadians(angle);
-                float angleFlyTheta = MathHelper.ToRadians(angleFly);
+                float angleTheta = MathHelper.ToRadian(angle);
+                float angleFlyTheta = MathHelper.ToRadian(angleFly);
                 float turnAngle = 0f;
                 float accelPower = 0f;
 
@@ -207,7 +206,7 @@ namespace Hellion.World.Structures
                 };
                 var accelVectorNorm = accelVector.Normalize();
                 var deltaVectorNorm = deltaVector.Normalize();
-                float deltaVectorLength = deltaVector.GetLengthSq();
+                float deltaVectorLength = deltaVector.SquaredLength;
                 float maxSpeed = 0.3f;
 
                 if (this.MotionFlags.HasFlag(StateFlags.OBJSTAF_TURBO))
@@ -236,10 +235,11 @@ namespace Hellion.World.Structures
 
         private void Walk()
         {
-            if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_STAND))
+            if (!(this is Player))
                 return;
 
-            this.lastMoveTime = Time.GetTick();
+            if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_STAND))
+                return;
 
             float angle = this.IsMovingWithKeyboard ?
                this.Angle : Vector3.AngleBetween(this.Position, this.DestinationPosition);
@@ -249,7 +249,7 @@ namespace Hellion.World.Structures
             float distAll = (float)Math.Sqrt(distX * distX + distZ * distZ);
 
             var distDelta = new Vector3();
-            float angleTheta = (float)(angle * (Math.PI / 180));
+            float angleTheta = MathHelper.ToRadian(angle);
             float speed = this.Speed; // TODO: add speed bonus
 
             switch (this.MovingFlags & ObjectState.OBJSTA_MOVE_ALL)
@@ -262,8 +262,8 @@ namespace Hellion.World.Structures
                     }
                     else
                     {
-                        distDelta.X = (float)(Math.Sin(angleTheta) * (speed));
-                        distDelta.Z = (float)(-Math.Cos(angleTheta) * (speed));
+                        distDelta.X = (float)(Math.Sin(angleTheta) * speed);
+                        distDelta.Z = (float)(-Math.Cos(angleTheta) * speed);
                     }
                     break;
                 case ObjectState.OBJSTA_BMOVE:
@@ -285,10 +285,10 @@ namespace Hellion.World.Structures
                     break;
             }
 
-            float longprogression = (float)Math.Sqrt(distDelta.X * distDelta.X + distDelta.Z * distDelta.Z);
+            float progress = (float)Math.Sqrt(distDelta.X * distDelta.X + distDelta.Z * distDelta.Z);
 
             Vector3 v = new Vector3();
-            if (distAll <= longprogression)
+            if (distAll <= progress || progress == 0)
             {
                 this.DestinationPosition = this.Position.Clone();
                 this.Angle = angle;
@@ -300,16 +300,58 @@ namespace Hellion.World.Structures
                     this.MovingFlags |= ObjectState.OBJSTA_STAND;
                     this.SendMoverAction((int)OBJMSG.OBJMSG_STAND);
                 }
+
+                if (this is Player)
+                    Log.Debug("{0} arrived", this.Name);
             }
             else
             {
                 v.X += distDelta.X;
                 v.Z += distDelta.Z;
-                distAll -= longprogression;
+                distAll -= progress;
+
+                if (this is Player)
+                    Log.Debug("Je parcours {0} il me reste à parcourrir {1} ", progress, distAll);
+                //if (this is Player)
+                    //Log.Debug("Je suis à la position : {0} {1} je dois me rendre au {2} {3}", Position.X + v.X, Position.Z + v.Z, DestinationPosition.X, DestinationPosition.Z);
             }
 
             this.move(v.X, v.Z);
             this.Angle = angle;
+        }
+
+        // HELP NEEDED
+        
+        private void WalkNew()
+        {
+            if (!(this is Player)) // DEBUG: Only for players
+                return;
+
+            // human mover speed is 0.1
+            // need to find a solution to implement this new algorithm
+            // to increase performaces.
+
+            float speed = this.Speed;
+            float distanceX = this.DestinationPosition.X - this.Position.X;
+            float distanceZ = this.DestinationPosition.Z - this.Position.Z;
+            float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
+
+            if (this.Position.IsInCircle(this.DestinationPosition, 0.1f))
+            {
+                this.Position = this.DestinationPosition.Clone();
+                this.DestinationPosition.Reset();
+                Log.Debug("OK");
+            }
+            else
+            {            
+                // Normalize
+                float deltaX = distanceX / distance;
+                float deltaZ = distanceZ / distance;
+
+                this.Position.X += deltaX * speed;
+                this.Position.Z += deltaZ * speed;
+                Log.Debug("Moving: Remaining: {0}", distance);
+            }
         }
 
         private void Follow()

@@ -1,4 +1,5 @@
 ﻿using Hellion.Core.Helpers;
+using Hellion.Core.IO;
 using System;
 
 namespace Hellion.Core.Structures
@@ -44,7 +45,15 @@ namespace Hellion.Core.Structures
         /// </summary>
         public float Length
         {
-            get { return (float)(Math.Sqrt(this.GetLengthSq())); }
+            get { return (float)Math.Sqrt(this.SquaredLength); }
+        }
+
+        /// <summary>
+        /// Gets the vector squared length.
+        /// </summary>
+        public float SquaredLength
+        {
+            get { return (this.x * this.x) + (this.y * this.y) + (this.z * this.z); }
         }
 
         /// <summary>
@@ -88,7 +97,7 @@ namespace Hellion.Core.Structures
         /// <returns></returns>
         public double GetDistance2D(Vector3 otherPosition)
         {
-            return Math.Sqrt(Math.Pow(this.X - otherPosition.X, 2) + Math.Pow(this.Z - otherPosition.Z, 2));
+            return Math.Sqrt(Math.Pow(otherPosition.X - this.X, 2) + Math.Pow(otherPosition.Z - this.Z, 2));
         }
 
         /// <summary>
@@ -98,7 +107,7 @@ namespace Hellion.Core.Structures
         /// <returns></returns>
         public double GetDistance3D(Vector3 otherPosition)
         {
-            return Math.Sqrt(Math.Pow(this.X - otherPosition.X, 2) + Math.Pow(this.Y - otherPosition.Y, 2) + Math.Pow(this.Z - otherPosition.Z, 2));
+            return Math.Sqrt(Math.Pow(otherPosition.X - this.X, 2) + Math.Pow(otherPosition.Y - this.Y, 2) + Math.Pow(otherPosition.Z - this.Z, 2));
         }
 
         /// <summary>
@@ -109,22 +118,25 @@ namespace Hellion.Core.Structures
         /// <returns></returns>
         public bool IsInCircle(Vector3 otherPosition, float circleRadius)
         {
-            float xDistance = this.X - otherPosition.X;
-            float zDistance = this.Z - otherPosition.Z;
+            float xDistance = otherPosition.X - this.X;
+            float zDistance = otherPosition.Z - this.Z;
+            float distance = (xDistance * xDistance + zDistance * zDistance);
 
-            return (xDistance * xDistance + zDistance * zDistance) <= circleRadius * circleRadius;
+            return distance <= circleRadius * circleRadius;
         }
 
+        /// <summary>
+        /// Normalize the vector.
+        /// </summary>
+        /// <returns></returns>
         public Vector3 Normalize()
         {
-            float distance = this.Length;
+            var sqLength = this.SquaredLength;
 
-            return new Vector3(this.x / distance, this.y / distance, this.z / distance);
-        }
+            if (sqLength <= 0)
+                throw new InvalidOperationException("Cannot normalize a vector of zero length.");
 
-        public float GetLengthSq()
-        {
-            return this.x * this.x + this.y * this.y + this.z * this.z;
+            return this / (float)Math.Sqrt(sqLength);
         }
 
         /// <summary>
@@ -136,6 +148,9 @@ namespace Hellion.Core.Structures
             return new Vector3(this.X, this.Y, this.Z);
         }
 
+        /// <summary>
+        /// Reset to 0 this Vector3.
+        /// </summary>
         public void Reset()
         {
             this.x = 0;
@@ -143,9 +158,13 @@ namespace Hellion.Core.Structures
             this.z = 0;
         }
 
+        /// <summary>
+        /// Check if the Vector3 is zero.
+        /// </summary>
+        /// <returns></returns>
         public bool IsZero()
         {
-            return this.x == 0 && this.y == 0 && this.z == 0;
+            return this.SquaredLength <= 0;
         }
 
         /// <summary>
@@ -155,6 +174,55 @@ namespace Hellion.Core.Structures
         public override string ToString()
         {
             return string.Format("Vector3: {0}:{1}:{2}", this.x, this.y, this.z);
+        }
+
+        /// <summary>
+        /// Returns the HashCode for this Vector3D
+        /// </summary>
+        /// <returns> 
+        /// int - the HashCode for this Vector3D
+        /// </returns> 
+        public override int GetHashCode()
+        {
+            return this.X.GetHashCode() ^
+                   this.Y.GetHashCode() ^
+                   this.Z.GetHashCode();
+        }
+
+        /// <summary>
+        /// Compares two vectors.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return this == (Vector3)obj;
+        }
+
+        /// <summary>
+        /// Computes the dot product <c>a · b</c> of the given vectors.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The dot product.</returns>
+        /// <remarks>See <a href="https://en.wikipedia.org/wiki/Dot_product" /> for more information.</remarks>
+        public static double DotProduct(Vector3 a, Vector3 b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+        }
+
+        /// <summary>
+        /// Computes the cross product <c>a x b</c> of the given vectors.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>This cross product</returns>
+        public static Vector3 CrossProduct(Vector3 a, Vector3 b)
+        {
+            return new Vector3(
+                a.Y * b.Z - a.Z * b.Y,
+                a.Z * b.X - a.X * b.Z,
+                a.X * b.Y - a.Y * b.X);
         }
 
         /// <summary>
@@ -216,6 +284,20 @@ namespace Hellion.Core.Structures
         }
 
         /// <summary>
+        /// Devides a vector by a scalar number.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static Vector3 operator /(Vector3 a, float b)
+        {
+            if (b == 0)
+                throw new DivideByZeroException();
+
+            return new Vector3(a.X / b, a.Y / b, a.Z / b);
+        }
+
+        /// <summary>
         /// Compares two Vector3.
         /// </summary>
         /// <param name="a"></param>
@@ -245,23 +327,34 @@ namespace Hellion.Core.Structures
         /// <returns></returns>
         public static float AngleBetween(Vector3 a, Vector3 b)
         {
-            float deltaX = a.x - b.x;
-            float deltaZ = a.z - b.z;
+            var dist = b - a;
+            float angle = (float)Math.Atan2(dist.X, -dist.Z);
 
-            float angle = (float)((Math.Atan2(deltaZ, deltaX) * 180 / Math.PI) + 90D);
-
+            angle = MathHelper.ToDegree(angle);
             if (angle < 0)
                 angle += 360;
-
-            if (a.X >= b.X)
-                angle += 180;
-            else
-                angle -= 180;
-
-            if (angle >= 360)
+            else if (angle >= 360)
                 angle -= 360;
 
             return angle;
+
+            //float deltaX = a.x - b.x;
+            //float deltaZ = a.z - b.z;
+
+            //float angle = (float)((Math.Atan2(deltaZ, deltaX) * 180 / Math.PI) + 90D);
+
+            //if (angle < 0)
+            //    angle += 360;
+
+            //if (a.X >= b.X)
+            //    angle += 180;
+            //else
+            //    angle -= 180;
+
+            //if (angle >= 360)
+            //    angle -= 360;
+
+            //return angle;
         }
     }
 }

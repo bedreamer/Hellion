@@ -1,5 +1,24 @@
 ## Hellion ChangeLog
 
+### Update #12
+
+Date: 04/03/2017
+
+- Documentation
+  - New packet documentation structure
+- Remove ISC Project
+- LoginServer
+  - Built in with ISC
+- World
+  - Skills and Skill levels loading
+
+### Update #11
+
+Date : 24/02/2017
+
+- World
+  - WIP: New mover walk process algorithm in progress
+
 ### Update #10
 
 Date: 17/02/2017

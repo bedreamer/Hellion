@@ -7,21 +7,21 @@ namespace Hellion.Core.Helpers
         /// <summary>
         /// Converts a randian angle to degree.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="radians"></param>
         /// <returns></returns>
-        public static float ToDegree(float value)
+        public static float ToDegree(float radians)
         {
-            return (float)(value * 180f / Math.PI);
+            return (float)(radians * (180.0f / Math.PI));
         }
 
         /// <summary>
         /// Converts a degree angle to radian.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="degree"></param>
         /// <returns></returns>
-        public static float ToRadians(float value)
+        public static float ToRadian(float degree)
         {
-            return (float)(Math.PI * value / 180f);
+            return (float)(degree * (Math.PI / 180.0f));
         }
     }
 }

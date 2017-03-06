@@ -145,7 +145,6 @@ namespace Hellion.World.Systems
             this.Attributes[DefineAttributes.HP] = dbCharacter.Hp;
             this.Attributes[DefineAttributes.MP] = dbCharacter.Mp;
             this.Attributes[DefineAttributes.FP] = dbCharacter.Fp;
-            this.Attributes[DefineAttributes.SPEED] = 100;
             this.Experience = dbCharacter.Experience;
             this.SkinSetId = dbCharacter.SkinSetId;
             this.HairId = dbCharacter.HairId;

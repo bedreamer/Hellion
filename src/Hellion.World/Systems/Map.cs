@@ -116,8 +116,16 @@ namespace Hellion.World.Systems
 
                 this.regions.Add(respawner);
             }
-            
+
             // Load .lnd
+            //this.Heights = new float[wld.Length * wld.Width];
+
+            //for (int i = 0; i < wld.Length; ++i)
+            //    for (int j = 0; j < wld.Width; ++j)
+            //    {
+            //        // build lnd file format
+            //        // read lnd
+            //    }
         }
 
         /// <summary>

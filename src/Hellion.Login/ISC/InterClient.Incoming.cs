@@ -3,41 +3,24 @@ using Hellion.Core.Data.Headers;
 using Hellion.Core.IO;
 using Hellion.Core.ISC.Structures;
 
-namespace Hellion.ISC
+namespace Hellion.Login.ISC
 {
     public partial class InterClient
     {
-        /// <summary>
-        /// Process the authentication of a server.
-        /// </summary>
-        /// <param name="packet">Incoming packet</param>
-        private void OnAuthentication(NetPacketBase packet)
+        private void OnAuthenticate(NetPacketBase packet)
         {
             var serverTypeNumber = packet.Read<int>();
             var interPassword = packet.Read<string>();
             var serverType = (InterServerType)serverTypeNumber;
 
-            if (interPassword.ToLower() != this.Server.IscConfiguration.Password.ToLower())
+            if (interPassword.ToLower() != this.Server.Configuration.Password.ToLower())
             {
                 Log.Warning("A client tried to authenticate with an incorect password.");
                 this.Server.RemoveClient(this);
                 return;
             }
 
-            if (serverType == InterServerType.Login)
-            {
-                if (this.Server.HasLoginServerConnected())
-                {
-                    Log.Warning("A login server is already connected to the ISC.");
-                    this.SendAuthenticationResult(false);
-                    this.Server.RemoveClient(this);
-                    return;
-                }
-
-                Log.Info("New LoginServer authenticated from {0}.", this.Socket.RemoteEndPoint.ToString());
-            }
-
-            if (serverType == InterServerType.Cluster && this.Server.HasLoginServerConnected())
+            if (serverType == InterServerType.Cluster)
             {
                 int clusterId = packet.Read<int>();
                 string clusterName = packet.Read<string>();
@@ -50,13 +33,12 @@ namespace Hellion.ISC
                     this.Server.RemoveClient(this);
                     return;
                 }
-                
-                this.ServerInfo = new ClusterServerInfo(clusterId, clusterIp, clusterName);
 
+                this.ServerInfo = new ClusterServerInfo(clusterId, clusterIp, clusterName);
                 Log.Info("New ClusterServer '{0}' authenticated from {1}", clusterName, this.Socket.RemoteEndPoint.ToString());
             }
 
-            if (serverType == InterServerType.World && this.Server.HasLoginServerConnected())
+            if (serverType == InterServerType.World)
             {
                 int clusterId = packet.Read<int>();
                 int worldId = packet.Read<int>();
@@ -87,8 +69,8 @@ namespace Hellion.ISC
 
             this.ServerType = serverType;
             this.SendAuthenticationResult(true);
-            this.SendServersList();
-            
+            this.Server.RefreshServerList();
+
             foreach (var cluster in this.Server.GetClusters())
                 this.SendWorldServerListToCluster(cluster.Id);
         }

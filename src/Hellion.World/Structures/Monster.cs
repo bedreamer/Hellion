@@ -27,11 +27,6 @@ namespace Hellion.World.Structures
         }
 
         /// <summary>
-        /// Gets the monster's attributes.
-        /// </summary>
-        public Attributes Attributes { get; private set; }
-
-        /// <summary>
         /// Gets the monster's data.
         /// </summary>
         public MonsterData Data
@@ -68,7 +63,6 @@ namespace Hellion.World.Structures
         {
             this.MapId = mapId;
             this.region = parentRegion;
-            this.Attributes = new Attributes();
 
             this.Attributes[DefineAttributes.HP] = this.Data.AddHp;
             this.Attributes[DefineAttributes.MP] = this.Data.AddMp;

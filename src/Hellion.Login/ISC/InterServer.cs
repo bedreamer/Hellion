@@ -1,122 +1,93 @@
 ﻿using Ether.Network;
-using Ether.Network.Packets;
 using Hellion.Core.Configuration;
 using Hellion.Core.Data.Headers;
 using Hellion.Core.IO;
 using Hellion.Core.ISC.Structures;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Threading;
 
-namespace Hellion.ISC
+namespace Hellion.Login.ISC
 {
     public sealed class InterServer : NetServer<InterClient>
     {
         /// <summary>
-        /// ISC Configuration file path.
+        /// Gets the LoginServer instance.
         /// </summary>
-        private const string IscConfigurationFile = "config/isc.json";
+        internal LoginServer LoginServer { get; private set; }
 
         /// <summary>
-        /// Gets the ISC configuration.
+        /// Gets the ISC Configuration.
         /// </summary>
-        public ISCConfiguration IscConfiguration { get; private set; }
+        internal ISCConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Creates a new InterServer instance.
         /// </summary>
-        public InterServer()
+        /// <param name="loginServer"></param>
+        public InterServer(LoginServer loginServer)
             : base()
         {
-            Console.Title = "Hellion ISC";
+            this.LoginServer = loginServer;
         }
 
         /// <summary>
-        /// Idle the inter-server.
-        /// </summary>
-        protected override void Idle()
-        {
-            Log.Info("ISC Server listening on port {0}", this.ServerConfiguration.Port);
-
-            while (this.IsRunning)
-            {
-                Console.ReadKey();
-            }
-        }
-
-        /// <summary>
-        /// Initialize the inter-server.
-        /// </summary>
-        protected override void Initialize()
-        {
-            this.LoadConfiguration();
-        }
-
-        /// <summary>
-        /// On client connected.
-        /// </summary>
-        /// <param name="client">Client</param>
-        protected override void OnClientConnected(InterClient client)
-        {
-            Log.Info("New inter client connected from {0}.", client.Socket.RemoteEndPoint.ToString());
-
-            if (client is InterClient)
-                (client as InterClient).Server = this;
-        }
-
-        /// <summary>
-        /// On client disconnected.
-        /// </summary>
-        /// <param name="client">Client</param>
-        protected override void OnClientDisconnected(InterClient client)
-        {
-            if (client is InterClient)
-                (client as InterClient).Disconnected();
-
-            InterClient loginServer = this.GetLoginServer();
-
-            loginServer?.SendServersList();
-        }
-
-        /// <summary>
-        /// Dispose the server's resources.
+        /// Dispose the server resources.
         /// </summary>
         public override void DisposeServer()
         {
         }
 
         /// <summary>
-        /// Load the server configuration.
+        /// Server idle state.
         /// </summary>
-        private void LoadConfiguration()
+        protected override void Idle()
         {
-            Log.Info("Loading configuration...");
-
-            if (File.Exists(IscConfigurationFile) == false)
-                ConfigurationManager.Save(new ISCConfiguration(), IscConfigurationFile);
-
-            this.IscConfiguration = ConfigurationManager.Load<ISCConfiguration>(IscConfigurationFile);
-
-            this.ServerConfiguration.Ip = this.IscConfiguration.Ip;
-            this.ServerConfiguration.Port = this.IscConfiguration.Port;
-
-            Log.Done("Configuration loaded!");
+            while (this.IsRunning)
+                Thread.Sleep(100);
         }
 
         /// <summary>
-        /// Send a packet to the login server.
+        /// Initialize the ISC Server.
         /// </summary>
-        /// <param name="packet"></param>
-        internal void SendPacketToLoginServer(NetPacketBase packet)
+        protected override void Initialize()
         {
-            var loginServer = this.GetLoginServer();
-
-            loginServer?.Send(packet);
+            this.Configuration = this.LoginServer.LoginConfiguration.ISC;
+            this.ServerConfiguration.Ip = this.Configuration.Ip;
+            this.ServerConfiguration.Port = this.Configuration.Port;
         }
         
+        protected override void OnClientConnected(InterClient client)
+        {
+            Log.Info("New inter client connected from {0}.", client.Socket.RemoteEndPoint.ToString());
+
+            client.Server = this;
+        }
+
+        protected override void OnClientDisconnected(InterClient client)
+        {
+            client.Disconnected();
+
+            this.RefreshServerList();
+        }
+
+        internal void RefreshServerList()
+        {
+            var clusters = this.GetClusters();
+
+            LoginServer.Clusters.Clear();
+            foreach (var cluster in clusters)
+            {
+                var worldsInCluster = this.GetWorldsByClusterId(cluster.Id);
+
+                foreach (var world in worldsInCluster)
+                    cluster.Worlds.Add(world);
+                LoginServer.Clusters.Add(cluster);  
+            }
+        }
+
         /// <summary>
-        /// Get all clusters connected.
+        /// Gets the cluster list.
         /// </summary>
         /// <returns></returns>
         internal IEnumerable<ClusterServerInfo> GetClusters()
@@ -125,26 +96,6 @@ namespace Hellion.ISC
                    where x.ServerType == InterServerType.Cluster
                    where x.Socket.Connected
                    select x.ServerInfo as ClusterServerInfo;
-        }
-
-        /// <summary>
-        /// Verify if there is already a login server connected to the ISC.
-        /// </summary>
-        /// <returns></returns>
-        internal bool HasLoginServerConnected()
-        {
-            return this.GetLoginServer() != null;
-        }
-
-        /// <summary>
-        /// Gets the login server.
-        /// </summary>
-        /// <returns></returns>
-        internal InterClient GetLoginServer()
-        {
-            return (from x in this.Clients
-                    where x.ServerType == InterServerType.Login
-                    select x).FirstOrDefault();
         }
 
         /// <summary>
@@ -207,6 +158,12 @@ namespace Hellion.ISC
             return this.GetWorldsByClusterId(clusterId).Any();
         }
 
+        /// <summary>
+        /// Check if there is a world in a cluster.
+        /// </summary>
+        /// <param name="clusterId"></param>
+        /// <param name="worldId"></param>
+        /// <returns></returns>
         internal bool HasWorldInCluster(int clusterId, int worldId)
         {
             var worlds = this.GetWorldsByClusterId(clusterId);

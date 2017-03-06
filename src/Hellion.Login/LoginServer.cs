@@ -5,8 +5,6 @@ using Hellion.Core.IO;
 using Hellion.Core.ISC.Structures;
 using Hellion.Core.Network;
 using Hellion.Database;
-using Hellion.Database.Repository;
-using Hellion.Database.Structures;
 using Hellion.Login.Client;
 using Hellion.Login.ISC;
 using System;
@@ -41,8 +39,8 @@ namespace Hellion.Login
         }
         private static ICollection<ClusterServerInfo> clusters = new List<ClusterServerInfo>();
         private static object syncClusters = new object();
-
-        private InterConnector connector;
+        
+        private InterServer interServer;
         private Thread iscThread;
 
         /// <summary>
@@ -86,7 +84,7 @@ namespace Hellion.Login
             FFPacketHandler.Initialize<LoginClient>();
             this.LoadConfiguration();
             this.ConnectToDatabase();
-            this.ConnectToISC();
+            this.InitializeISC();
 
             Console.WriteLine();
         }
@@ -178,27 +176,22 @@ namespace Hellion.Login
         }
 
         /// <summary>
-        /// Connect to the Inter-Server.
+        /// Initialize the ISC.
         /// </summary>
-        private void ConnectToISC()
+        private void InitializeISC()
         {
-            Log.Info("Connecting to Inter-Server...");
-
-            this.connector = new InterConnector(this);
+            this.interServer = new InterServer(this);
 
             try
             {
-                this.connector.Connect(this.LoginConfiguration.ISC.Ip, this.LoginConfiguration.ISC.Port);
-                this.iscThread = new Thread(this.connector.Run);
+                this.iscThread = new Thread(new ParameterizedThreadStart(obj => this.interServer.Start()));
                 this.iscThread.Start();
             }
             catch (Exception e)
             {
-                Log.Error("Cannot connect to ISC. {0}", e.Message);
+                Log.Error("Cannot Initialize ISC. {0}", e.Message);
                 Environment.Exit(0);
             }
-
-            Log.Done("Connected to Inter-Server!");
         }
     }
 }
