@@ -171,7 +171,8 @@ namespace Hellion.World
 
             try
             {
-                this.connector.Connect(this.WorldConfiguration.ISC.Ip, this.WorldConfiguration.ISC.Port);
+                var resolvedIp = HostResolver.ResolveToIp(this.WorldConfiguration.ISC.Ip);
+                this.connector.Connect(resolvedIp, this.WorldConfiguration.ISC.Port);
                 this.iscThread = new Thread(this.connector.Run);
                 this.iscThread.Start();
             }
