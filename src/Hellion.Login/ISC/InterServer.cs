@@ -78,6 +78,7 @@ namespace Hellion.Login.ISC
             LoginServer.Clusters.Clear();
             foreach (var cluster in clusters)
             {
+                cluster.Worlds.Clear();
                 var worldsInCluster = this.GetWorldsByClusterId(cluster.Id);
 
                 foreach (var world in worldsInCluster)

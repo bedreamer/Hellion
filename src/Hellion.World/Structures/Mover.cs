@@ -133,7 +133,7 @@ namespace Hellion.World.Structures
             if (this.IsFlying)
                 this.Fly();
             else
-                this.Walk();
+                this.WalkNew();
         }
 
         private void Fly()
@@ -331,7 +331,10 @@ namespace Hellion.World.Structures
             // need to find a solution to implement this new algorithm
             // to increase performaces.
 
-            float speed = this.Speed;
+            var timeDelta = Time.GetTick() - this.lastMoveTime;
+            this.lastMoveTime = Time.GetTick();
+
+            float speed = this.Speed * (timeDelta / 10f);
             float distanceX = this.DestinationPosition.X - this.Position.X;
             float distanceZ = this.DestinationPosition.Z - this.Position.Z;
             float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
