@@ -1,5 +1,12 @@
 ## Hellion ChangeLog
 
+### Update #13
+
+Date: 11/03/2013
+
+- Common
+  - Fix configuration hostname issue [PR #42](https://github.com/Eastrall/Hellion/pull/42) (by Almewty)
+
 ### Update #12
 
 Date: 04/03/2017
