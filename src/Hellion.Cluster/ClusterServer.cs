@@ -176,7 +176,8 @@ namespace Hellion.Cluster
 
             try
             {
-                this.connector.Connect(this.ClusterConfiguration.ISC.Ip, this.ClusterConfiguration.ISC.Port);
+                var resolvedIp = HostResolver.ResolveToIp(this.ClusterConfiguration.ISC.Ip);
+                this.connector.Connect(resolvedIp, this.ClusterConfiguration.ISC.Port);
                 this.iscThread = new Thread(this.connector.Run);
                 this.iscThread.Start();
             }
