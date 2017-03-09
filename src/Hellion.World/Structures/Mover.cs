@@ -116,16 +116,19 @@ namespace Hellion.World.Structures
         }
 
 
-
+        private long timeDelta;
         private void ProcessMoves()
         {
+            timeDelta = Time.GetTick() - this.lastMoveTime;
+            this.lastMoveTime = Time.GetTick();
+
             if (this.DestinationPosition.IsZero())
                 return;
 
-            //if (this.nextMove > Time.GetTick())
-            //    return;
+            if (this.nextMove > Time.GetTick())
+                return;
 
-            //this.nextMove = Time.GetTick() + 10;
+            this.nextMove = Time.GetTick() + 10;
 
             if (this.IsFollowing)
                 this.Follow();
@@ -309,11 +312,6 @@ namespace Hellion.World.Structures
                 v.X += distDelta.X;
                 v.Z += distDelta.Z;
                 distAll -= progress;
-
-                if (this is Player)
-                    Log.Debug("Je parcours {0} il me reste à parcourrir {1} ", progress, distAll);
-                //if (this is Player)
-                    //Log.Debug("Je suis à la position : {0} {1} je dois me rendre au {2} {3}", Position.X + v.X, Position.Z + v.Z, DestinationPosition.X, DestinationPosition.Z);
             }
 
             this.move(v.X, v.Z);
@@ -324,17 +322,18 @@ namespace Hellion.World.Structures
         
         private void WalkNew()
         {
+
             if (!(this is Player)) // DEBUG: Only for players
                 return;
 
             // human mover speed is 0.1
             // need to find a solution to implement this new algorithm
             // to increase performaces.
-
-            var timeDelta = Time.GetTick() - this.lastMoveTime;
-            this.lastMoveTime = Time.GetTick();
-
-            float speed = this.Speed * (timeDelta / 10f);
+            
+            float speed = (this.Speed * 100f) * (timeDelta / 1000f);
+            //Log.Debug("Speed: {0}", this.Speed);
+            //Log.Debug("Time Delta: {0}", timeDelta);
+            Log.Debug("Final speed: {0}", speed);
             float distanceX = this.DestinationPosition.X - this.Position.X;
             float distanceZ = this.DestinationPosition.Z - this.Position.Z;
             float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
@@ -347,13 +346,26 @@ namespace Hellion.World.Structures
             }
             else
             {            
+                Log.Debug("Moving: Remaining: {0}", distance);
+
                 // Normalize
                 float deltaX = distanceX / distance;
                 float deltaZ = distanceZ / distance;
 
-                this.Position.X += deltaX * speed;
-                this.Position.Z += deltaZ * speed;
-                Log.Debug("Moving: Remaining: {0}", distance);
+                float offsetX = deltaX * speed;
+                float offsetZ = deltaZ * speed;
+
+                if (Math.Abs(offsetX) > Math.Abs(distanceX))
+                    offsetX = distanceX;
+                if (Math.Abs(offsetZ) > Math.Abs(distanceZ))
+                    offsetZ = distanceZ;
+
+                this.Position.X += offsetX;
+                this.Position.Z += offsetZ;
+                Log.Debug("============");
+                Log.Debug("Position: {0}", this.Position);
+                Log.Debug("Dest Position: {0}", this.DestinationPosition);
+                Log.Debug("Distance between: {0}", this.Position.GetDistance3D(this.DestinationPosition));
             }
         }
 
