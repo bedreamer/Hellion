@@ -97,8 +97,7 @@ namespace Hellion.Login
         {
             Log.Info("New client connected from {0}", client.Socket.RemoteEndPoint.ToString());
 
-            if (client is LoginClient)
-                (client as LoginClient).Server = this;
+            client.Server = this;
         }
 
         /// <summary>

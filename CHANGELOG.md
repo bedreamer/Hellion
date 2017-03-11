@@ -6,6 +6,8 @@ Date: 11/03/2013
 
 - Common
   - Fix configuration hostname issue [PR #42](https://github.com/Eastrall/Hellion/pull/42) (by Almewty)
+- World
+  - Fix/optimize new walk algorithm [Issue #36](https://github.com/Eastrall/Hellion/issues/36)
 
 ### Update #12
 

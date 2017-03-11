@@ -95,8 +95,7 @@ namespace Hellion.Cluster
         {
             Log.Info("New client connected from {0}", client.Socket.RemoteEndPoint.ToString());
 
-            if (client is ClusterClient)
-                (client as ClusterClient).Server = this;
+            client.Server = this;
         }
 
         /// <summary>
