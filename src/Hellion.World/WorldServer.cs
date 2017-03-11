@@ -1,6 +1,7 @@
 ﻿using Ether.Network;
 using Ether.Network.Packets;
 using Hellion.Core.Configuration;
+using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Network;
 using Hellion.Database;
@@ -119,17 +120,17 @@ namespace Hellion.World
             Log.Info("Loading configuration...");
 
             if (File.Exists(WorldConfigurationFile) == false)
-                ConfigurationManager.Save(new LoginConfiguration(), WorldConfigurationFile);
+                JsonHelper.Save(new WorldConfiguration(), WorldConfigurationFile);
 
-            this.WorldConfiguration = ConfigurationManager.Load<WorldConfiguration>(WorldConfigurationFile);
+            this.WorldConfiguration = JsonHelper.Load<WorldConfiguration>(WorldConfigurationFile);
 
             this.ServerConfiguration.Ip = this.WorldConfiguration.Ip;
             this.ServerConfiguration.Port = this.WorldConfiguration.Port;
 
             if (File.Exists(DatabaseConfigurationFile) == false)
-                ConfigurationManager.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
+                JsonHelper.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
 
-            this.DatabaseConfiguration = ConfigurationManager.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
+            this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
             Log.Done("Configuration loaded!");
         }

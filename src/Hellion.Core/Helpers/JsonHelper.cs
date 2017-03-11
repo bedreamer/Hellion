@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
 
-namespace Hellion.Core.IO
+namespace Hellion.Core.Helpers
 {
     /// <summary>
     /// Configuration Manager.
     /// </summary>
-    public static class ConfigurationManager
+    public static class JsonHelper
     {
         /// <summary>
         /// Loads a JSON configuration file.

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Hellion.Core.Helpers;
 
 namespace Hellion.Cluster
 {
@@ -125,17 +126,17 @@ namespace Hellion.Cluster
             Log.Info("Loading configuration...");
 
             if (File.Exists(ClusterConfigurationFile) == false)
-                ConfigurationManager.Save(new LoginConfiguration(), ClusterConfigurationFile);
+                JsonHelper.Save(new ClusterConfiguration(), ClusterConfigurationFile);
 
-            this.ClusterConfiguration = ConfigurationManager.Load<ClusterConfiguration>(ClusterConfigurationFile);
+            this.ClusterConfiguration = JsonHelper.Load<ClusterConfiguration>(ClusterConfigurationFile);
 
             this.ServerConfiguration.Ip = this.ClusterConfiguration.Ip;
             this.ServerConfiguration.Port = this.ClusterConfiguration.Port;
 
             if (File.Exists(DatabaseConfigurationFile) == false)
-                ConfigurationManager.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
+                JsonHelper.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
 
-            this.DatabaseConfiguration = ConfigurationManager.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
+            this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
             Log.Done("Configuration loaded!");
         }

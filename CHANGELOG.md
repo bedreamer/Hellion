@@ -6,6 +6,8 @@ Date: 11/03/2013
 
 - Common
   - Fix configuration hostname issue [PR #42](https://github.com/Eastrall/Hellion/pull/42) (by Almewty)
+  - Remove unnecessary checks [Issue #44](https://github.com/Eastrall/Hellion/issues/44)
+  - Rename ConfigurationManager to JsonHelper [Issue #43](https://github.com/Eastrall/Hellion/issues/43)
 - World
   - Fix/optimize new walk algorithm [Issue #36](https://github.com/Eastrall/Hellion/issues/36)
 
