@@ -322,18 +322,7 @@ namespace Hellion.World.Structures
         
         private void WalkNew()
         {
-
-            if (!(this is Player)) // DEBUG: Only for players
-                return;
-
-            // human mover speed is 0.1
-            // need to find a solution to implement this new algorithm
-            // to increase performaces.
-            
             float speed = (this.Speed * 100f) * (timeDelta / 1000f);
-            //Log.Debug("Speed: {0}", this.Speed);
-            //Log.Debug("Time Delta: {0}", timeDelta);
-            Log.Debug("Final speed: {0}", speed);
             float distanceX = this.DestinationPosition.X - this.Position.X;
             float distanceZ = this.DestinationPosition.Z - this.Position.Z;
             float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
@@ -341,13 +330,10 @@ namespace Hellion.World.Structures
             if (this.Position.IsInCircle(this.DestinationPosition, 0.1f))
             {
                 this.Position = this.DestinationPosition.Clone();
-                this.DestinationPosition.Reset();
-                Log.Debug("OK");
+                this.OnArrival();
             }
             else
-            {            
-                Log.Debug("Moving: Remaining: {0}", distance);
-
+            {
                 // Normalize
                 float deltaX = distanceX / distance;
                 float deltaZ = distanceZ / distance;
@@ -362,10 +348,6 @@ namespace Hellion.World.Structures
 
                 this.Position.X += offsetX;
                 this.Position.Z += offsetZ;
-                Log.Debug("============");
-                Log.Debug("Position: {0}", this.Position);
-                Log.Debug("Dest Position: {0}", this.DestinationPosition);
-                Log.Debug("Distance between: {0}", this.Position.GetDistance3D(this.DestinationPosition));
             }
         }
 
@@ -413,6 +395,8 @@ namespace Hellion.World.Structures
         }
 
         public virtual void Fight(Mover defender) { }
+
+        public virtual void OnArrival() { }
 
         // TODO: Move this packets to an other file.
 

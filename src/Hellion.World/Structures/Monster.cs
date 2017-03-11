@@ -118,7 +118,7 @@ namespace Hellion.World.Structures
                     this.SendSpeed(this.SpeedFactor);
                 }
 
-                if (this.Position.IsInCircle(this.TargetMover.Position, 1))
+                if (this.Position.IsInCircle(this.TargetMover.Position, 1f))
                 {
                     if (this.attackTimer < Time.GetTick())
                         this.Fight(this.TargetMover);
