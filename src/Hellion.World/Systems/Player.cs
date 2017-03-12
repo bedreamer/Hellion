@@ -7,6 +7,7 @@ using Hellion.Database.Structures;
 using Hellion.World.Client;
 using Hellion.World.Managers;
 using Hellion.World.Structures;
+using Hellion.World.Systems.Classes;
 using System;
 
 namespace Hellion.World.Systems
@@ -95,6 +96,11 @@ namespace Hellion.World.Systems
         /// Gets the player's inventory.
         /// </summary>
         public Inventory Inventory { get; private set; }
+
+        /// <summary>
+        /// Gets player's class.
+        /// </summary>
+        public AClass Class { get; private set; }
 
         // Add:
         // Quests
@@ -298,8 +304,6 @@ namespace Hellion.World.Systems
             if (rightWeapon == null)
                 rightWeapon = Inventory.Hand;
 
-            int damages = BattleManager.CalculateDamages(this, defender);
-
             // Set monster target
             if (defender is Monster && defender.TargetMover == null)
             {
@@ -308,8 +312,43 @@ namespace Hellion.World.Systems
                 defender.IsFollowing = true;
             }
 
+            int damages = BattleManager.CalculateMeleeDamages(this, defender);
+
             Log.Debug("{0} inflicted {1} damages to {2}", this.Name, damages, defender.Name);
 
+        }
+
+        // formulas from "int CMover::GetWeaponATK( DWORD dwWeaponType )" in official files
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            float attribute = 0f;
+            float levelFactor = 0f;
+            float jobFactor = 1f;
+            int damages = 0;
+
+            switch (weaponType)
+            {
+                case WeaponType.MELEE_SWD:
+                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    levelFactor = this.Level * 1.1f;
+                    jobFactor = this.Class.Data.MeleeSword;
+                    break;
+                case WeaponType.MELEE_AXE:
+                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    levelFactor = this.Level * 1.2f;
+                    jobFactor = this.Class.Data.MeleeAxe;
+                    break;
+                case WeaponType.MELEE_STAFF: break;
+                case WeaponType.MELEE_STICK: break;
+                case WeaponType.MELEE_KNUCKLE: break;
+                case WeaponType.MAGIC_WAND: break;
+                case WeaponType.MELEE_YOYO: break;
+                case WeaponType.RANGE_BOW: break;
+            }
+
+            damages = (int)(attribute * jobFactor + levelFactor);
+
+            return damages;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Hellion.Core.Data.Headers;
 using Hellion.World.Structures;
+using Hellion.World.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,31 +15,28 @@ namespace Hellion.World.Managers
     /// </summary>
     public static class BattleManager
     {
-        public static int CalculateDamages(Mover attacker, Mover defender)
+        public static int CalculateMeleeDamages(Mover attacker, Mover defender)
         {
-            var attackFlags = GetAttackFlags();
+            int damages = 0;
 
-            if (attackFlags.HasFlag(AttackFlags.AF_MISS))
-                return 0;
-            if (attackFlags.HasFlag(AttackFlags.AF_GENERIC))
+            if (attacker is Player)
             {
-                // normal attack
+                var player = attacker as Player;
+                int weaponType = player.Inventory.GetRightWeapon().Data.eItemType; // right weapon first.
+                damages = attacker.GetWeaponAttackDamages(weaponType);
+
+                // If player is assassin Then
+                // calculate damage for left weapon if he has one
             }
-            if (attackFlags.HasFlag(AttackFlags.AF_CRITICAL))
+            else
             {
-                // Critical hit
+                // Monster
             }
 
-            return 0;
-        }
+            if (damages < 0)
+                damages = 0;
 
-        public static AttackFlags GetAttackFlags()
-        {
-            AttackFlags attackFlags = 0;
-
-            // determine if its a critical hit, knockback, miss hit, etc...
-
-            return attackFlags;
+            return damages;
         }
     }
 }

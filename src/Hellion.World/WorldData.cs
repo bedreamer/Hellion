@@ -24,6 +24,7 @@ namespace Hellion.World
         private static Dictionary<string, DialogData> dialogData = new Dictionary<string, DialogData>();
         private static Dictionary<string, NPCData> npcData = new Dictionary<string, NPCData>();
         private static Dictionary<int, SkillData> skillData = new Dictionary<int, SkillData>();
+        private static Dictionary<int, JobData> jobData = new Dictionary<int, JobData>();
         private static MapManager mapManager;
 
         /// <summary>
@@ -75,6 +76,14 @@ namespace Hellion.World
         }
 
         /// <summary>
+        /// Gets the jobs data.
+        /// </summary>
+        public static Dictionary<int, JobData> JobData
+        {
+            get { return jobData; }
+        }
+
+        /// <summary>
         /// Loads the world server data like resources, maps, quests, dialogs, etc...
         /// </summary>
         private void LoadData()
@@ -88,6 +97,7 @@ namespace Hellion.World
             this.LoadNpc();
             this.LoadMovers();
             this.LoadSkills();
+            this.LoadJobs();
             this.LoadMaps();
             this.Clear();
 
@@ -414,6 +424,29 @@ namespace Hellion.World
             {
                 Log.Error("Cannot load items: {0}", e.Message);
 
+            }
+        }
+
+        private void LoadJobs()
+        {
+            try
+            {
+                string propJobPath = Path.Combine(Global.DataPath, "res", "dataSub1", "propJob.inc");
+                var propJobTable = new ResourceTable(propJobPath);
+
+                propJobTable.AddDefines(defines);
+                propJobTable.SetTableHeaders("nJob", "fAttackSpeed", "fFactorMaxHp", "fFactorMaxMp", "fFactorMaxFp", "fFactorDef", "fFactorHPRecovery", "fFactorMPRecovery", "fFactorFPRecovery", "fMeleeSWD", "fMeleeAXE", "fMeleeSTAFF", "fMeleeSTICK", "fMeleeKNUCKLE", "fMagicWang", "fBlocking", "fMeleeYOYO", "fCritical");
+                propJobTable.Parse();
+
+                while (propJobTable.Read())
+                {
+                    var job = new JobData(propJobTable);
+
+                    jobData.Add(job.Id, job);
+                }
+            }
+            catch (Exception e)
+            {
             }
         }
     }

@@ -116,4 +116,29 @@
         KILL_ALL_RATE = 10018,
         ALL_DEC_RATE = 10019,
     }
+
+    public class WeaponType
+    {
+        public const int MELEE_SWD = 1; 
+        public const int MELEE_AXE = 2; 
+        public const int MELEE_STICK = 3; 
+        public const int MELEE_KNUCKLE = 4; 
+        public const int MELEE_STAFF = 5; 
+        public const int MAGIC_WAND = 6; 
+        public const int MELEE = 7; 
+        public const int RANGE = 8;
+        public const int MAGIC = 9; 
+        public const int CHEER = 10; 
+        public const int GUN = 11; 
+        public const int DOLL = 12; 
+        public const int EQUIP = 13; 
+        public const int PROPERTY = 14; 
+        public const int ACROBAT = 15;
+        public const int THROWITEM = 16;
+        public const int THROWING = 17; 
+        public const int SWING = 18; 
+        public const int KNUCKLE = 19;
+        public const int MELEE_YOYO = 20;
+        public const int RANGE_BOW = 21;
+    }
 }

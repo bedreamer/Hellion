@@ -6,6 +6,7 @@ using Hellion.Core.Structures.Dialogs;
 using Hellion.World.Structures;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Hellion.World.Systems
 {
@@ -60,6 +61,16 @@ namespace Hellion.World.Systems
             this.SpeakOralText();
 
             base.Update();
+        }
+
+        /// <summary>
+        /// Get the weapon attack damages.
+        /// </summary>
+        /// <param name="weaponType"></param>
+        /// <returns></returns>
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            return 0;
         }
 
         /// <summary>

@@ -148,7 +148,7 @@ namespace Hellion.World.Structures
                 this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
 
                 int motion = 29; // TODO: 28+attackType (IA)
-                int damages = BattleManager.CalculateDamages(this, defender);
+                int damages = BattleManager.CalculateMeleeDamages(this, defender);
 
                 this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
             }
@@ -160,6 +160,11 @@ namespace Hellion.World.Structures
             }
 
             base.Fight(defender);
+        }
+
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            return 0;
         }
     }
 }

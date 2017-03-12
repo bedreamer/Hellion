@@ -72,6 +72,17 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Gets the right weapon item.
+        /// </summary>
+        /// <returns></returns>
+        public Item GetRightWeapon()
+        {
+            var item = this.GetItemBySlot(52);
+
+            return item == null ? Hand : item;
+        }
+
+        /// <summary>
         /// Gets an item by his unique id.
         /// </summary>
         /// <param name="uniqueId"></param>

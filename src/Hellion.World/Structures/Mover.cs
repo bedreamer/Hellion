@@ -12,7 +12,7 @@ using Hellion.Core.Helpers;
 
 namespace Hellion.World.Structures
 {
-    public class Mover : WorldObject
+    public abstract class Mover : WorldObject
     {
         private long nextMove;
         private long lastMoveTime;
@@ -136,7 +136,7 @@ namespace Hellion.World.Structures
             if (this.IsFlying)
                 this.Fly();
             else
-                this.WalkNew();
+                this.Walk();
         }
 
         private void Fly()
@@ -235,92 +235,8 @@ namespace Hellion.World.Structures
                 this.Angle = angle;
             }
         }
-
-        private void Walk()
-        {
-            if (!(this is Player))
-                return;
-
-            if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_STAND))
-                return;
-
-            float angle = this.IsMovingWithKeyboard ?
-               this.Angle : Vector3.AngleBetween(this.Position, this.DestinationPosition);
-
-            float distX = this.DestinationPosition.X - this.Position.X;
-            float distZ = this.DestinationPosition.Z - this.Position.Z;
-            float distAll = (float)Math.Sqrt(distX * distX + distZ * distZ);
-
-            var distDelta = new Vector3();
-            float angleTheta = MathHelper.ToRadian(angle);
-            float speed = this.Speed; // TODO: add speed bonus
-
-            switch (this.MovingFlags & ObjectState.OBJSTA_MOVE_ALL)
-            {
-                case ObjectState.OBJSTA_FMOVE:
-                    if (this.MotionFlags.HasFlag(StateFlags.OBJSTAF_WALK))
-                    {
-                        distDelta.X = (float)(Math.Sin(angleTheta) * (speed / 4f));
-                        distDelta.Z = (float)(-Math.Cos(angleTheta) * (speed / 4f));
-                    }
-                    else
-                    {
-                        distDelta.X = (float)(Math.Sin(angleTheta) * speed);
-                        distDelta.Z = (float)(-Math.Cos(angleTheta) * speed);
-                    }
-                    break;
-                case ObjectState.OBJSTA_BMOVE:
-                    distDelta.X = (float)(Math.Sin(angleTheta) * (speed / 5f));
-                    distDelta.Z = (float)(-Math.Cos(angleTheta) * (speed / 5f));
-                    break;
-            }
-            switch (this.MovingFlags & ObjectState.OBJSTA_TURN_ALL)
-            {
-                case ObjectState.OBJSTA_LTURN:
-                    angle += 4;
-                    if (angle > 360)
-                        angle -= 360;
-                    break;
-                case ObjectState.OBJSTA_RTURN:
-                    angle -= 4;
-                    if (angle < 0)
-                        angle += 360;
-                    break;
-            }
-
-            float progress = (float)Math.Sqrt(distDelta.X * distDelta.X + distDelta.Z * distDelta.Z);
-
-            Vector3 v = new Vector3();
-            if (distAll <= progress || progress == 0)
-            {
-                this.DestinationPosition = this.Position.Clone();
-                this.Angle = angle;
-                v.Reset();
-
-                if (!this.IsFighting)
-                {
-                    this.MovingFlags &= ~ObjectState.OBJSTA_FMOVE;
-                    this.MovingFlags |= ObjectState.OBJSTA_STAND;
-                    this.SendMoverAction((int)OBJMSG.OBJMSG_STAND);
-                }
-
-                if (this is Player)
-                    Log.Debug("{0} arrived", this.Name);
-            }
-            else
-            {
-                v.X += distDelta.X;
-                v.Z += distDelta.Z;
-                distAll -= progress;
-            }
-
-            this.move(v.X, v.Z);
-            this.Angle = angle;
-        }
-
-        // HELP NEEDED
         
-        private void WalkNew()
+        private void Walk()
         {
             float speed = (this.Speed * 100f) * (timeDelta / 1000f);
             float distanceX = this.DestinationPosition.X - this.Position.X;
@@ -370,6 +286,7 @@ namespace Hellion.World.Structures
             }
         }
 
+
         // TODO: clean this mess up! :p
 
         private void move(float x, float z)
@@ -397,6 +314,8 @@ namespace Hellion.World.Structures
         public virtual void Fight(Mover defender) { }
 
         public virtual void OnArrival() { }
+
+        public abstract int GetWeaponAttackDamages(int weaponType);
 
         // TODO: Move this packets to an other file.
 
