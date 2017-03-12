@@ -1,8 +1,16 @@
 ## Hellion ChangeLog
 
+### Update #14
+
+Date: 18/03/2017
+
+- World
+  - Load JobData (propJob.inc)
+  - Begin of damage formula
+
 ### Update #13
 
-Date: 11/03/2013
+Date: 11/03/2017
 
 - Common
   - Fix configuration hostname issue [PR #42](https://github.com/Eastrall/Hellion/pull/42) (by Almewty)
