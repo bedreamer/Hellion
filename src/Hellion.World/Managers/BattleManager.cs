@@ -1,4 +1,5 @@
 ﻿using Hellion.Core.Data.Headers;
+using Hellion.Core.Helpers;
 using Hellion.World.Structures;
 using Hellion.World.Systems;
 using System;
@@ -17,13 +18,21 @@ namespace Hellion.World.Managers
     {
         public static int CalculateMeleeDamages(Mover attacker, Mover defender)
         {
-            int damages = 0;
+            int baseDamages = 0;
 
             if (attacker is Player)
             {
                 var player = attacker as Player;
-                int weaponType = player.Inventory.GetRightWeapon().Data.eItemType; // right weapon first.
-                damages = attacker.GetWeaponAttackDamages(weaponType);
+                Item rightWeapon = player.Inventory.GetRightWeapon(); // right weapon first.
+                int weaponType = rightWeapon.Data.WeaponType;
+                baseDamages = attacker.GetWeaponAttackDamages(weaponType);
+
+                int weaponMinAbility = rightWeapon.Data.AbilityMin * 2;
+                int weaponMaxAbility = rightWeapon.Data.AbilityMax * 2;
+
+                int weaponDamage = RandomHelper.Random(weaponMinAbility, weaponMaxAbility);
+
+                baseDamages += weaponDamage;
 
                 // If player is assassin Then
                 // calculate damage for left weapon if he has one
@@ -33,10 +42,10 @@ namespace Hellion.World.Managers
                 // Monster
             }
 
-            if (damages < 0)
-                damages = 0;
+            if (baseDamages < 0)
+                baseDamages = 0;
 
-            return damages;
+            return baseDamages;
         }
     }
 }

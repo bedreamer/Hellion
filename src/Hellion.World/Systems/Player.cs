@@ -134,6 +134,7 @@ namespace Hellion.World.Systems
             this.Client = parentClient;
             this.Chat = new Chat(this);
             this.Inventory = new Inventory(this, dbCharacter.Items);
+            this.Class = new Vagrant(); // TODO: Create a factory to generate classes by class id
 
             this.Id = dbCharacter.Id;
             this.AccountId = dbCharacter.AccountId;
