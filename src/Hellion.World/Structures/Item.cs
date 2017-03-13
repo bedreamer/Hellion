@@ -8,6 +8,8 @@ namespace Hellion.World.Structures
     /// </summary>
     public class Item
     {
+        public static readonly int[] RefineTable = new int[] { 0, 2, 4, 6, 8, 10, 13, 16, 19, 21, 24 };
+
         /// <summary>
         /// Gets the item Id.
         /// </summary>
@@ -34,6 +36,21 @@ namespace Hellion.World.Structures
         public int Slot { get; set; }
 
         /// <summary>
+        /// Gets or sets the item refine.
+        /// </summary>
+        public byte Refine { get; set; }
+
+        /// <summary>
+        /// Gets or sets the item element. (Fire, water, electricity, etc...)
+        /// </summary>
+        public byte Element { get; set; }
+
+        /// <summary>
+        /// Gets or sets the item element refine.
+        /// </summary>
+        public byte ElementRefine { get; set; }
+
+        /// <summary>
         /// Gets the item data informations.
         /// </summary>
         public ItemData Data
@@ -57,7 +74,8 @@ namespace Hellion.World.Structures
         /// </summary>
         /// <param name="item">Item from database</param>
         public Item(DbItem item)
-            : this(item.ItemId, item.ItemCount, item.CreatorId, item.ItemSlot, item.ItemSlot)
+            : this(item.ItemId, item.ItemCount, item.CreatorId, item.ItemSlot, item.ItemSlot, 
+                  item.Refine, item.Element, item.ElementRefine)
         {
         }
 
@@ -112,12 +130,61 @@ namespace Hellion.World.Structures
         /// <param name="slot">Item slot</param>
         /// <param name="uniqueId">Item unique id</param>
         public Item(int id, int quantity, int creatorId, int slot, int uniqueId)
+            : this(id, quantity, creatorId, slot, -1, 0)
+        {
+        }
+
+
+        /// <summary>
+        /// Create an item with an id, quantity, creator id, destination slot and refine.
+        /// </summary>
+        /// <param name="id">Item id</param>
+        /// <param name="quantity">Itme quantity</param>
+        /// <param name="creatorId">Id of the character that created the object (for GM)</param>
+        /// <param name="slot">Item slot</param>
+        /// <param name="uniqueId">Item unique id</param>
+        /// <param name="refine">Item refine</param>
+        public Item(int id, int quantity, int creatorId, int slot, int uniqueId, byte refine)
+            : this(id, quantity, creatorId, slot, uniqueId, refine, 0, 0)
+        {
+        }
+
+        /// <summary>
+        /// Create an item with an id, quantity, creator id, destination slot, refine and element.
+        /// </summary>
+        /// <param name="id">Item id</param>
+        /// <param name="quantity">Itme quantity</param>
+        /// <param name="creatorId">Id of the character that created the object (for GM)</param>
+        /// <param name="slot">Item slot</param>
+        /// <param name="uniqueId">Item unique id</param>
+        /// <param name="refine">Item refine</param>
+        /// <param name="element">Item element</param>
+        public Item(int id, int quantity, int creatorId, int slot, int uniqueId, byte refine, byte element)
+            : this(id, quantity, creatorId, slot, uniqueId, refine, element, 0)
+        {
+        }
+
+        /// <summary>
+        /// Create an item with an id, quantity, creator id, destination slot, refine and element.
+        /// </summary>
+        /// <param name="id">Item id</param>
+        /// <param name="quantity">Itme quantity</param>
+        /// <param name="creatorId">Id of the character that created the object (for GM)</param>
+        /// <param name="slot">Item slot</param>
+        /// <param name="uniqueId">Item unique id</param>
+        /// <param name="refine">Item refine</param>
+        /// <param name="element">Item element</param>
+        /// <param name="elementRefine">Item element refine</param>
+        public Item(int id, int quantity, int creatorId, int slot, int uniqueId, byte refine, byte element, byte elementRefine)
         {
             this.Id = id;
             this.Quantity = quantity;
             this.CreatorId = creatorId;
             this.Slot = slot;
             this.UniqueId = uniqueId;
+            this.Refine = refine;
+            this.Element = element;
+            this.ElementRefine = elementRefine;
         }
 
         /// <summary>
@@ -134,10 +201,10 @@ namespace Hellion.World.Structures
             packet.Write(0);
             packet.Write(0);
             packet.Write<byte>(0);
-            packet.Write(0);
-            packet.Write(0);
-            packet.Write<byte>(0);
-            packet.Write(0);
+            packet.Write((int)this.Refine);
+            packet.Write(0); // guild id (cloaks?)
+            packet.Write(this.Element);
+            packet.Write((int)this.ElementRefine);
             packet.Write(0);
             packet.Write(0);
             packet.Write(0);
@@ -148,9 +215,20 @@ namespace Hellion.World.Structures
             packet.Write(0);
         }
 
+        /// <summary>
+        /// Clones this items.
+        /// </summary>
+        /// <returns></returns>
         public Item Clone()
         {
-            return new Item(this.Id, this.Quantity, this.CreatorId, this.Slot) { UniqueId = this.UniqueId };
+            return new Item(this.Id, 
+                this.Quantity, 
+                this.CreatorId, 
+                this.Slot, 
+                this.UniqueId, 
+                this.Refine, 
+                this.Element, 
+                this.ElementRefine);
         }
 
         /// <summary>

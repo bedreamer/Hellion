@@ -62,6 +62,7 @@ namespace Hellion.Core.Network
             catch (Exception e)
             {
                 Log.Error(e.Message);
+                Log.Error("Inner message {0}", e.InnerException.Message);
                 Log.Error(e.StackTrace);
                 return false;
             }

@@ -297,7 +297,10 @@ namespace Hellion.World.Systems
                         CreatorId = item.CreatorId,
                         ItemId = item.Id,
                         ItemCount = item.Quantity,
-                        ItemSlot = item.Slot
+                        ItemSlot = item.Slot,
+                        Refine = item.Refine,
+                        Element = item.Element,
+                        ElementRefine = item.ElementRefine
                     };
 
                     DatabaseService.Items.Add(dbItem);
@@ -307,7 +310,10 @@ namespace Hellion.World.Systems
                     dbItem.ItemId = item.Id;
                     dbItem.ItemCount = item.Quantity;
                     dbItem.ItemSlot = item.Slot;
-                    // TODO: add refine and updates
+                    dbItem.Refine = item.Refine;
+                    dbItem.Element = item.Element;
+                    dbItem.ElementRefine = item.ElementRefine;
+
                     DatabaseService.Items.Update(dbItem);
                 }
             }

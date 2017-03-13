@@ -31,8 +31,9 @@ namespace Hellion.World.Managers
                 int weaponMaxAbility = rightWeapon.Data.AbilityMax * 2;
 
                 int weaponDamage = RandomHelper.Random(weaponMinAbility, weaponMaxAbility);
+                int refineDamage = (weaponDamage * (int)GetWeaponRefineMultiplier(rightWeapon.Refine)) + (int)Math.Pow(rightWeapon.Refine, 1.5);
 
-                baseDamages += weaponDamage;
+                baseDamages += weaponDamage + refineDamage;
 
                 // If player is assassin Then
                 // calculate damage for left weapon if he has one
@@ -46,6 +47,18 @@ namespace Hellion.World.Managers
                 baseDamages = 0;
 
             return baseDamages;
+        }
+
+        private static double GetWeaponRefineMultiplier(byte weaponRefine)
+        {
+            try
+            {
+                return (Item.RefineTable[Math.Min(10, Math.Max(0, (int)weaponRefine))] + 100) * 0.01;
+            }
+            catch
+            {
+                return 1;
+            }
         }
     }
 }
