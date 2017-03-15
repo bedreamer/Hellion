@@ -72,6 +72,16 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Gets the item equiped on the part passed as parameter.
+        /// </summary>
+        /// <param name="part">Inventory part</param>
+        /// <returns></returns>
+        public Item GetEquipedItemAt(int part)
+        {
+            return this.GetItemBySlot(part + EquipOffset);
+        }
+
+        /// <summary>
         /// Gets the right weapon item.
         /// </summary>
         /// <returns></returns>
@@ -130,7 +140,7 @@ namespace Hellion.World.Systems
                 return;
             if (this.items[sourceSlot].Id == -1 || this.items[sourceSlot].UniqueId == -1 || this.items[destSlot].UniqueId == -1)
                 return;
-            
+
             var sourceItem = this.items[sourceSlot];
             var destItem = this.items[destSlot];
 
@@ -239,7 +249,7 @@ namespace Hellion.World.Systems
                     this.player.SendCreateItem(item);
                 }
             }
-            
+
         }
 
         /// <summary>

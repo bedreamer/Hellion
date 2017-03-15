@@ -313,10 +313,7 @@ namespace Hellion.World.Systems
                 defender.IsFollowing = true;
             }
 
-            int damages = BattleManager.CalculateMeleeDamages(this, defender);
-
-            Log.Debug("{0} inflicted {1} damages to {2}", this.Name, damages, defender.Name);
-
+            BattleManager.Process(this, defender);
         }
 
         // formulas from "int CMover::GetWeaponATK( DWORD dwWeaponType )" in official files

@@ -420,5 +420,18 @@ namespace Hellion.World.Structures
                 this.SendToVisible(packet);
             }
         }
+
+        internal void SendDamages(int targetId, int damages, int flags)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.DAMAGE);
+                packet.Write(targetId);
+                packet.Write(damages);
+                packet.Write(flags);
+
+                this.SendToVisible(packet); 
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ Date: 18/03/2017
 - World
   - Load JobData (propJob.inc)
   - Begin of damage formula
+  - Add Item refine / element / element refine
 
 ### Update #13
 

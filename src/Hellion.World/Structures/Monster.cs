@@ -35,6 +35,15 @@ namespace Hellion.World.Structures
         }
 
         /// <summary>
+        /// Gets monster's level.
+        /// </summary>
+        public override int Level
+        {
+            get { return this.Data.Level; }
+            protected set { base.Level = value; }
+        }
+
+        /// <summary>
         /// Gets the monster flight speed.
         /// </summary>
         public override float FlightSpeed
