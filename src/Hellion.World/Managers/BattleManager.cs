@@ -63,7 +63,7 @@ namespace Hellion.World.Managers
                 flags |= AttackFlags.AF_CRITICAL;
             if (IsBlockingHit(attacker, defender))
                 flags |= AttackFlags.AF_BLOCKING;
-            
+
             return flags;
         }
 
@@ -78,9 +78,20 @@ namespace Hellion.World.Managers
                 return;
             }
             if (flags.HasFlag(AttackFlags.AF_BLOCKING))
+            {
+                float blockFactor = GetBlockFactor(attacker, defender);
+
+                if (blockFactor < 1f)
+                    damages = (int)(damages * blockFactor);
+
                 Log.Debug("=> {0} blocking {1}", defender.Name, attacker.Name);
+            }
             if (flags.HasFlag(AttackFlags.AF_CRITICAL))
+            {
+                damages *= 2; // TODO: GetCriticalHitFactor
+
                 Log.Debug("=> {0} inflicts a critical hit to {1}", attacker.Name, defender.Name);
+            }
 
             // TODO: modify damages according to the flags and defender defense.
 
@@ -138,13 +149,13 @@ namespace Hellion.World.Managers
 
             if (attacker is Player)
                 jobFactor = (attacker as Player).Class.Data.Critical;
-            
+
             float critProb = attacker.Attributes[DefineAttributes.DEX] / 10;
             critProb *= jobFactor;
 
             if (critProb < 1f)
                 critProb = 1f;
-            
+
             return chance < critProb;
         }
 
@@ -188,6 +199,86 @@ namespace Hellion.World.Managers
             }
 
             return blockRate > chance;
+        }
+
+        private static float GetCriticalHitFactor(Mover attacker, Mover defender)
+        {
+            float minCrit = 1.1f;
+            float maxCrit = 1.4f;
+            float criticalBonus = 1f;
+
+            if (attacker.Level > defender.Level)
+            {
+                if (defender is Monster)
+                {
+                    minCrit = 1.2f;
+                    maxCrit = 2.0f;
+                }
+
+                if (defender is Player)
+                {
+                    minCrit = 1.4f;
+                    maxCrit = 1.8f;
+                }
+            }
+
+            // TODO: critical bonus
+            //criticalBonus += attacker.Attributes[DefineAttributes.CRITICAL_BONUS] / 100f;
+
+            //if (criticalBonus < 0.1f)
+            //    criticalBonus = 0.1f;
+
+            return RandomHelper.FloatRandom(minCrit, maxCrit);
+        }
+
+        private static float GetBlockFactor(Mover attacker, Mover defender)
+        {
+            if (defender is Player)
+            {
+                var player = defender as Player;
+                int defenderDex = defender.Attributes[DefineAttributes.DEX];
+                int attackerDex = attacker.Attributes[DefineAttributes.DEX];
+                float chance = RandomHelper.FloatRandom(0f, 80f);
+
+                if (chance <= 5)
+                    return 1.0f;
+                if (chance >= 75)
+                    return 0.1f;
+
+                float blockFactor1 = defender.Level / ((defender.Level + attacker.Level) * 15.0f);
+                float blockFactor2 = (defenderDex + attackerDex + 2) * ((defenderDex - attackerDex) / 800.0f);
+                if (blockFactor2 > 10.0f)
+                    blockFactor2 = 10.0f;
+                float blockFactor = blockFactor1 + blockFactor2;
+                if (blockFactor < 0.0f)
+                    blockFactor = 0.0f;
+
+                int blockRate = (int)((defenderDex / 8.0f) * player.Class.Data.Blocking + blockFactor);
+                if (blockRate < 0)
+                    blockRate = 0;
+
+                if (blockRate > chance)
+                    return 0.0f;
+            }
+            else if (defender is Monster)
+            {
+                var monster = defender as Monster;
+                float chance = RandomHelper.FloatRandom(0f, 100f);
+
+                if (chance <= 5)
+                    return 1.0f;
+                if (chance >= 95)
+                    return 0.1f;
+
+                int blockRate = (int)((monster.Data.ER - monster.Level) * 0.5f);
+                if (blockRate < 0)
+                    blockRate = 0;
+
+                if (blockRate > chance)
+                    return 0.2f;
+            }
+
+            return 1f;
         }
     }
 }

@@ -6,7 +6,8 @@ Date: 18/03/2017
 
 - World
   - Load JobData (propJob.inc)
-  - Begin of damage formula
+  - Damage formula
+  - Miss / Blocking / Critical hit calculation
   - Add Item refine / element / element refine
 
 ### Update #13
