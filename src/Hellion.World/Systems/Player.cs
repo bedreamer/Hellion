@@ -348,5 +348,61 @@ namespace Hellion.World.Systems
 
             return damages;
         }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            int defense = 0;
+
+            if (attacker is Player)
+            {
+                if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                    defense = (int)((this.Attributes[DefineAttributes.INT] * 9.04f) + (this.Level * 35.98f));
+                else
+                {
+                    // TODO: Generic hit PVP
+                }
+            }
+            else
+            {
+                defense = (int)(((this.GetEquipedDefense() / 4 /*+ GetParam(DST_ADJDEF, 0)*/) +
+                    (this.Level + (this.Attributes[DefineAttributes.STA] / 2) + this.Attributes[DefineAttributes.DEX]) / 2.8f) - 4 + this.Level * 2);
+            }
+
+            if (defense < 0)
+                defense = 0;
+
+            return defense;
+        }
+
+        private int GetEquipedDefense()
+        {
+            int min = 0;
+            int max = 0;
+            var equipedItems = this.Inventory.GetEquipedItems();
+
+            foreach (var item in equipedItems)
+            {
+                if (item == null || item.Data == null)
+                    continue;
+
+                if (item.Data.ItemKind2 == DefineItemKind.IK2_ARMOR ||
+                    item.Data.ItemKind2 == DefineItemKind.IK2_ARMORETC)
+                {
+                    int refineValue = 0;
+
+                    if (item.Refine > 0)
+                        refineValue = (int)Math.Pow(item.Refine, 1.5f);
+
+                    float multiplier = 1f; // TODO: exp item table (CMover::GetItemMultiplier(..))
+
+                    min += (int)(item.Data.AbilityMin * multiplier) + refineValue;
+                    max += (int)(item.Data.AbilityMax * multiplier) + refineValue;
+                }
+            }
+
+            int defense = (min + max) / 2;
+
+            return defense > 0 ? defense : 0;
+        }
     }
 }

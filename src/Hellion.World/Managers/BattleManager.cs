@@ -41,7 +41,9 @@ namespace Hellion.World.Managers
             }
             else
             {
-                // Monster
+                var monster = attacker as Monster;
+
+                baseDamages = RandomHelper.Random(monster.Data.AtkMin, monster.Data.AtkMax);
             }
 
             if (baseDamages < 0)
@@ -75,7 +77,6 @@ namespace Hellion.World.Managers
             if (flags == AttackFlags.AF_MISS)
             {
                 Log.Debug("{0} misses {1}", attacker.Name, defender.Name);
-                return;
             }
             if (flags.HasFlag(AttackFlags.AF_BLOCKING))
             {
@@ -93,9 +94,14 @@ namespace Hellion.World.Managers
                 Log.Debug("=> {0} inflicts a critical hit to {1}", attacker.Name, defender.Name);
             }
 
-            // TODO: modify damages according to the flags and defender defense.
+            damages -= (int)GetDefense(attacker, defender, flags);
+            
+            if (damages < 0)
+                damages = 0;
 
             Log.Debug("{0} inflicted {1} damages to {2}", attacker.Name, damages, defender.Name);
+
+            defender.SendDamages(attacker.ObjectId, damages, (int)flags);
         }
 
         private static double GetWeaponRefineMultiplier(byte weaponRefine)
@@ -279,6 +285,21 @@ namespace Hellion.World.Managers
             }
 
             return 1f;
+        }
+
+        private static float GetDefense(Mover attacker, Mover defender, AttackFlags flags)
+        {
+            if (flags.HasFlag(AttackFlags.AF_MAGICSKILL))
+            {
+                // return Magic resist
+                return 0f;
+            }
+
+            if ((attacker is Player && defender is Player) || flags.HasFlag(AttackFlags.AF_GENERIC))
+            {
+            }
+
+            return defender.GetDefense(attacker, flags);
         }
     }
 }

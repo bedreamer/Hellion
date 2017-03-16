@@ -315,6 +315,11 @@ namespace Hellion.World.Structures
 
         public virtual void OnArrival() { }
 
+        public virtual int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            return 0;
+        }
+
         public abstract int GetWeaponAttackDamages(int weaponType);
 
         // TODO: Move this packets to an other file.

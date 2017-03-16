@@ -175,5 +175,10 @@ namespace Hellion.World.Structures
         {
             return 0;
         }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            return base.GetDefense(attacker, flags);
+        }
     }
 }
