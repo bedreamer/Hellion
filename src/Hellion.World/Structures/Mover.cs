@@ -426,14 +426,22 @@ namespace Hellion.World.Structures
             }
         }
 
-        internal void SendDamages(int targetId, int damages, int flags)
+        internal void SendDamagesTo(Mover defender, int damages, AttackFlags flags, Vector3 position = null, float angle = 0f)
         {
             using (var packet = new FFPacket())
             {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.DAMAGE);
-                packet.Write(targetId);
+                packet.StartNewMergedPacket(defender.ObjectId, SnapshotType.DAMAGE);
+                packet.Write(this.ObjectId);
                 packet.Write(damages);
-                packet.Write(flags);
+                packet.Write((int)flags);
+
+                if (flags.HasFlag(AttackFlags.AF_FLYING))
+                {
+                    packet.Write(position.X);
+                    packet.Write(position.Y);
+                    packet.Write(position.Z);
+                    packet.Write(angle * 10f);
+                }
 
                 this.SendToVisible(packet); 
             }

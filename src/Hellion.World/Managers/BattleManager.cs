@@ -1,6 +1,7 @@
 ﻿using Hellion.Core.Data.Headers;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
+using Hellion.Core.Structures;
 using Hellion.World.Structures;
 using Hellion.World.Systems;
 using System;
@@ -62,7 +63,14 @@ namespace Hellion.World.Managers
                 flags |= AttackFlags.AF_GENERIC;
 
             if (IsCriticalHit(attacker, defender))
+            {
                 flags |= AttackFlags.AF_CRITICAL;
+
+                float chance = RandomHelper.Random(0, 100);
+
+                if (chance < 30)
+                    flags |= AttackFlags.AF_FLYING;
+            }
             if (IsBlockingHit(attacker, defender))
                 flags |= AttackFlags.AF_BLOCKING;
 
@@ -93,15 +101,29 @@ namespace Hellion.World.Managers
 
                 Log.Debug("=> {0} inflicts a critical hit to {1}", attacker.Name, defender.Name);
             }
-
-            damages -= (int)GetDefense(attacker, defender, flags);
+            
+            damages -= GetDefense(attacker, defender, flags);
             
             if (damages < 0)
                 damages = 0;
 
             Log.Debug("{0} inflicted {1} damages to {2}", attacker.Name, damages, defender.Name);
+            
+            // Send damages
+            if (flags.HasFlag(AttackFlags.AF_FLYING)) // KnockBack
+                SendDamagesFly(attacker, defender, damages, flags);
+            else
+                attacker.SendDamagesTo(defender, damages, flags);
 
-            defender.SendDamages(attacker.ObjectId, damages, (int)flags);
+            defender.Attributes[DefineAttributes.HP] -= damages;
+
+            if (defender.Attributes[DefineAttributes.HP] <= 0)
+                defender.IsDead = true;
+
+            if (defender.IsDead)
+            {
+                // send dead
+            }
         }
 
         private static double GetWeaponRefineMultiplier(byte weaponRefine)
@@ -287,12 +309,12 @@ namespace Hellion.World.Managers
             return 1f;
         }
 
-        private static float GetDefense(Mover attacker, Mover defender, AttackFlags flags)
+        private static int GetDefense(Mover attacker, Mover defender, AttackFlags flags)
         {
             if (flags.HasFlag(AttackFlags.AF_MAGICSKILL))
             {
                 // return Magic resist
-                return 0f;
+                return 0;
             }
 
             if ((attacker is Player && defender is Player) || flags.HasFlag(AttackFlags.AF_GENERIC))
@@ -300,6 +322,22 @@ namespace Hellion.World.Managers
             }
 
             return defender.GetDefense(attacker, flags);
+        }
+
+        private static void SendDamagesFly(Mover attacker, Mover defender, int damages, AttackFlags flags)
+        {
+            var delta = new Vector3();
+            float angle = MathHelper.ToRadian(defender.Angle);
+            float angleY = MathHelper.ToRadian(145f);
+
+            delta.Y = (float)(-Math.Cos(angleY) * 0.18f);
+            float dist = (float)(Math.Sin(angleY) * 0.18f);
+            delta.X = (float)(Math.Sin(angle) * dist);
+            delta.Z = (float)(-Math.Cos(angle) * dist);
+
+            defender.Position.X += delta.X;
+            defender.Position.Z += delta.Z;
+            attacker.SendDamagesTo(defender, damages, flags, defender.Position, angle);
         }
     }
 }
