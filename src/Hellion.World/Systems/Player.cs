@@ -134,7 +134,7 @@ namespace Hellion.World.Systems
             this.Client = parentClient;
             this.Chat = new Chat(this);
             this.Inventory = new Inventory(this, dbCharacter.Items);
-            this.Class = new Vagrant(); // TODO: Create a factory to generate classes by class id
+            this.Class = AClass.Create(dbCharacter.ClassId);
 
             this.Id = dbCharacter.Id;
             this.AccountId = dbCharacter.AccountId;
@@ -163,7 +163,7 @@ namespace Hellion.World.Systems
             this.Angle = dbCharacter.Angle;
             this.DestinationPosition = this.Position.Clone();
             this.IsFlying = this.Inventory.HasFlyingObjectEquiped();
-
+            
             // Initialize quests, guild, friends, skills etc...
         }
 

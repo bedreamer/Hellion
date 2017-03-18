@@ -8,6 +8,7 @@ Date: 18/03/2017
   - Load JobData (propJob.inc)
   - Damage formula
   - Miss / Blocking / Critical hit calculation
+  - Knockback
   - Add Item refine / element / element refine
 
 ### Update #13
