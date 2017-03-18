@@ -47,7 +47,7 @@ namespace Hellion.World.Structures
         public int AddHp { get; private set; }
         public int MaxHP { get; private set; }
         public int AddMp { get; private set; }
-        public int NaturealArmor { get; private set; }
+        public int NaturalArmor { get; private set; }
         public int nAbrasion { get; private set; }
         public int nHardness { get; private set; }
         public int AdjAtkDelay { get; private set; }
@@ -147,7 +147,7 @@ namespace Hellion.World.Structures
             this.AddHp = (int)((double)table.Get<int>("dwAddHp") * 1.0); // MONSTER HP RATE
             this.MaxHP = this.AddHp;
             this.AddMp = table.Get<int>("dwAddMp");
-            this.NaturealArmor = table.Get<int>("dwNaturealArmor");
+            this.NaturalArmor = table.Get<int>("dwNaturealArmor");
             this.nAbrasion = table.Get<int>("nAbrasion");
             this.nHardness = table.Get<int>("nHardness");
             this.AdjAtkDelay = table.Get<int>("dwAdjAtkDelay");

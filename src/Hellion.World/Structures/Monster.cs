@@ -178,7 +178,12 @@ namespace Hellion.World.Structures
 
         public override int GetDefense(Mover attacker, AttackFlags flags)
         {
-            return base.GetDefense(attacker, flags);
+            float armor = this.Data.NaturalArmor;
+
+            if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                armor = this.Data.ResistMagic;
+
+            return (int)(armor / 7f + 1f);
         }
     }
 }
