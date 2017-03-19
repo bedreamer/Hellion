@@ -108,7 +108,7 @@ namespace Hellion.World.Managers
                 damages = 0;
 
             Log.Debug("{0} inflicted {1} damages to {2}", attacker.Name, damages, defender.Name);
-            
+
             // Send damages
             if (flags.HasFlag(AttackFlags.AF_FLYING)) // KnockBack
                 SendDamagesFly(attacker, defender, damages, flags);
@@ -335,8 +335,8 @@ namespace Hellion.World.Managers
             delta.X = (float)(Math.Sin(angle) * dist);
             delta.Z = (float)(-Math.Cos(angle) * dist);
 
-            defender.Position.X += delta.X;
-            defender.Position.Z += delta.Z;
+            defender.DestinationPosition.X += delta.X;
+            defender.DestinationPosition.Z += delta.Z;
             attacker.SendDamagesTo(defender, damages, flags, defender.Position, angle);
         }
     }

@@ -31,8 +31,8 @@ namespace Hellion.World.Systems.Classes
         {
             switch (id)
             {
-                case DefineJob.JOB_VAGRANT: new Vagrant(); break;
-                case DefineJob.JOB_MERCENARY: new Mercenary(); break;
+                case DefineJob.JOB_VAGRANT: return new Vagrant();
+                case DefineJob.JOB_MERCENARY: return new Mercenary();
             }
             return null;
         }
