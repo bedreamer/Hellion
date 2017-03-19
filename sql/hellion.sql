@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `accountId` int(11) NOT NULL,
+  `angle` float NOT NULL,
   `bankCode` int(11) NOT NULL,
   `classId` int(11) NOT NULL,
   `dexterity` int(11) NOT NULL,
@@ -50,9 +51,8 @@ CREATE TABLE `characters` (
   `slot` int(11) NOT NULL,
   `stamina` int(11) NOT NULL,
   `strength` int(11) NOT NULL,
-  `angle` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,13 +66,16 @@ CREATE TABLE `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `characterId` int(11) NOT NULL,
   `itemCreatorId` int(11) NOT NULL,
+  `element` tinyint(3) unsigned NOT NULL,
+  `elementRefine` tinyint(3) unsigned NOT NULL,
   `itemCount` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
   `itemSlot` int(11) NOT NULL,
+  `refine` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IX_items_characterId` (`characterId`),
   CONSTRAINT `FK_items_characters_characterId` FOREIGN KEY (`characterId`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,4 +104,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-02-17 14:48:04
+-- Dump completed on 2017-03-13 21:42:02

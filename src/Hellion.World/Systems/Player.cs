@@ -7,6 +7,7 @@ using Hellion.Database.Structures;
 using Hellion.World.Client;
 using Hellion.World.Managers;
 using Hellion.World.Structures;
+using Hellion.World.Systems.Classes;
 using System;
 
 namespace Hellion.World.Systems
@@ -96,6 +97,11 @@ namespace Hellion.World.Systems
         /// </summary>
         public Inventory Inventory { get; private set; }
 
+        /// <summary>
+        /// Gets player's class.
+        /// </summary>
+        public AClass Class { get; private set; }
+
         // Add:
         // Quests
         // Guild
@@ -128,6 +134,7 @@ namespace Hellion.World.Systems
             this.Client = parentClient;
             this.Chat = new Chat(this);
             this.Inventory = new Inventory(this, dbCharacter.Items);
+            this.Class = AClass.Create(dbCharacter.ClassId);
 
             this.Id = dbCharacter.Id;
             this.AccountId = dbCharacter.AccountId;
@@ -156,7 +163,7 @@ namespace Hellion.World.Systems
             this.Angle = dbCharacter.Angle;
             this.DestinationPosition = this.Position.Clone();
             this.IsFlying = this.Inventory.HasFlyingObjectEquiped();
-
+            
             // Initialize quests, guild, friends, skills etc...
         }
 
@@ -298,8 +305,6 @@ namespace Hellion.World.Systems
             if (rightWeapon == null)
                 rightWeapon = Inventory.Hand;
 
-            int damages = BattleManager.CalculateDamages(this, defender);
-
             // Set monster target
             if (defender is Monster && defender.TargetMover == null)
             {
@@ -308,8 +313,96 @@ namespace Hellion.World.Systems
                 defender.IsFollowing = true;
             }
 
-            Log.Debug("{0} inflicted {1} damages to {2}", this.Name, damages, defender.Name);
+            BattleManager.Process(this, defender);
+        }
 
+        // formulas from "int CMover::GetWeaponATK( DWORD dwWeaponType )" in official files
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            float attribute = 0f;
+            float levelFactor = 0f;
+            float jobFactor = 1f;
+            int damages = 0;
+
+            switch (weaponType)
+            {
+                case WeaponType.MELEE_SWD:
+                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    levelFactor = this.Level * 1.1f;
+                    jobFactor = this.Class.Data.MeleeSword;
+                    break;
+                case WeaponType.MELEE_AXE:
+                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    levelFactor = this.Level * 1.2f;
+                    jobFactor = this.Class.Data.MeleeAxe;
+                    break;
+                case WeaponType.MELEE_STAFF: break;
+                case WeaponType.MELEE_STICK: break;
+                case WeaponType.MELEE_KNUCKLE: break;
+                case WeaponType.MAGIC_WAND: break;
+                case WeaponType.MELEE_YOYO: break;
+                case WeaponType.RANGE_BOW: break;
+            }
+
+            damages = (int)(attribute * jobFactor + levelFactor);
+
+            return damages;
+        }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            int defense = 0;
+
+            if (attacker is Player)
+            {
+                if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                    defense = (int)((this.Attributes[DefineAttributes.INT] * 9.04f) + (this.Level * 35.98f));
+                else
+                {
+                    // TODO: Generic hit PVP
+                }
+            }
+            else
+            {
+                defense = (int)(((this.GetEquipedDefense() / 4 /*+ GetParam(DST_ADJDEF, 0)*/) +
+                    (this.Level + (this.Attributes[DefineAttributes.STA] / 2) + this.Attributes[DefineAttributes.DEX]) / 2.8f) - 4 + this.Level * 2);
+            }
+
+            if (defense < 0)
+                defense = 0;
+
+            return defense;
+        }
+
+        private int GetEquipedDefense()
+        {
+            int min = 0;
+            int max = 0;
+            var equipedItems = this.Inventory.GetEquipedItems();
+
+            foreach (var item in equipedItems)
+            {
+                if (item == null || item.Data == null)
+                    continue;
+
+                if (item.Data.ItemKind2 == DefineItemKind.IK2_ARMOR ||
+                    item.Data.ItemKind2 == DefineItemKind.IK2_ARMORETC)
+                {
+                    int refineValue = 0;
+
+                    if (item.Refine > 0)
+                        refineValue = (int)Math.Pow(item.Refine, 1.5f);
+
+                    float multiplier = 1f; // TODO: exp item table (CMover::GetItemMultiplier(..))
+
+                    min += (int)(item.Data.AbilityMin * multiplier) + refineValue;
+                    max += (int)(item.Data.AbilityMax * multiplier) + refineValue;
+                }
+            }
+
+            int defense = (min + max) / 2;
+
+            return defense > 0 ? defense : 0;
         }
     }
 }

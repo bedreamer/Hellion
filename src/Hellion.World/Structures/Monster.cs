@@ -35,6 +35,15 @@ namespace Hellion.World.Structures
         }
 
         /// <summary>
+        /// Gets monster's level.
+        /// </summary>
+        public override int Level
+        {
+            get { return this.Data.Level; }
+            protected set { base.Level = value; }
+        }
+
+        /// <summary>
         /// Gets the monster flight speed.
         /// </summary>
         public override float FlightSpeed
@@ -118,7 +127,7 @@ namespace Hellion.World.Structures
                     this.SendSpeed(this.SpeedFactor);
                 }
 
-                if (this.Position.IsInCircle(this.TargetMover.Position, 1))
+                if (this.Position.IsInCircle(this.TargetMover.Position, 1f))
                 {
                     if (this.attackTimer < Time.GetTick())
                         this.Fight(this.TargetMover);
@@ -148,7 +157,7 @@ namespace Hellion.World.Structures
                 this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
 
                 int motion = 29; // TODO: 28+attackType (IA)
-                int damages = BattleManager.CalculateDamages(this, defender);
+                int damages = BattleManager.CalculateMeleeDamages(this, defender);
 
                 this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
             }
@@ -160,6 +169,21 @@ namespace Hellion.World.Structures
             }
 
             base.Fight(defender);
+        }
+
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            return 0;
+        }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            float armor = this.Data.NaturalArmor;
+
+            if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                armor = this.Data.ResistMagic;
+
+            return (int)(armor / 7f + 1f);
         }
     }
 }

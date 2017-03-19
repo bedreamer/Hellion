@@ -12,7 +12,7 @@ using Hellion.Core.Helpers;
 
 namespace Hellion.World.Structures
 {
-    public class Mover : WorldObject
+    public abstract class Mover : WorldObject
     {
         private long nextMove;
         private long lastMoveTime;
@@ -116,16 +116,19 @@ namespace Hellion.World.Structures
         }
 
 
-
+        private long timeDelta;
         private void ProcessMoves()
         {
+            timeDelta = Time.GetTick() - this.lastMoveTime;
+            this.lastMoveTime = Time.GetTick();
+
             if (this.DestinationPosition.IsZero())
                 return;
 
-            //if (this.nextMove > Time.GetTick())
-            //    return;
+            if (this.nextMove > Time.GetTick())
+                return;
 
-            //this.nextMove = Time.GetTick() + 10;
+            this.nextMove = Time.GetTick() + 10;
 
             if (this.IsFollowing)
                 this.Follow();
@@ -232,106 +235,10 @@ namespace Hellion.World.Structures
                 this.Angle = angle;
             }
         }
-
+        
         private void Walk()
         {
-            if (!(this is Player))
-                return;
-
-            if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_STAND))
-                return;
-
-            float angle = this.IsMovingWithKeyboard ?
-               this.Angle : Vector3.AngleBetween(this.Position, this.DestinationPosition);
-
-            float distX = this.DestinationPosition.X - this.Position.X;
-            float distZ = this.DestinationPosition.Z - this.Position.Z;
-            float distAll = (float)Math.Sqrt(distX * distX + distZ * distZ);
-
-            var distDelta = new Vector3();
-            float angleTheta = MathHelper.ToRadian(angle);
-            float speed = this.Speed; // TODO: add speed bonus
-
-            switch (this.MovingFlags & ObjectState.OBJSTA_MOVE_ALL)
-            {
-                case ObjectState.OBJSTA_FMOVE:
-                    if (this.MotionFlags.HasFlag(StateFlags.OBJSTAF_WALK))
-                    {
-                        distDelta.X = (float)(Math.Sin(angleTheta) * (speed / 4f));
-                        distDelta.Z = (float)(-Math.Cos(angleTheta) * (speed / 4f));
-                    }
-                    else
-                    {
-                        distDelta.X = (float)(Math.Sin(angleTheta) * speed);
-                        distDelta.Z = (float)(-Math.Cos(angleTheta) * speed);
-                    }
-                    break;
-                case ObjectState.OBJSTA_BMOVE:
-                    distDelta.X = (float)(Math.Sin(angleTheta) * (speed / 5f));
-                    distDelta.Z = (float)(-Math.Cos(angleTheta) * (speed / 5f));
-                    break;
-            }
-            switch (this.MovingFlags & ObjectState.OBJSTA_TURN_ALL)
-            {
-                case ObjectState.OBJSTA_LTURN:
-                    angle += 4;
-                    if (angle > 360)
-                        angle -= 360;
-                    break;
-                case ObjectState.OBJSTA_RTURN:
-                    angle -= 4;
-                    if (angle < 0)
-                        angle += 360;
-                    break;
-            }
-
-            float progress = (float)Math.Sqrt(distDelta.X * distDelta.X + distDelta.Z * distDelta.Z);
-
-            Vector3 v = new Vector3();
-            if (distAll <= progress || progress == 0)
-            {
-                this.DestinationPosition = this.Position.Clone();
-                this.Angle = angle;
-                v.Reset();
-
-                if (!this.IsFighting)
-                {
-                    this.MovingFlags &= ~ObjectState.OBJSTA_FMOVE;
-                    this.MovingFlags |= ObjectState.OBJSTA_STAND;
-                    this.SendMoverAction((int)OBJMSG.OBJMSG_STAND);
-                }
-
-                if (this is Player)
-                    Log.Debug("{0} arrived", this.Name);
-            }
-            else
-            {
-                v.X += distDelta.X;
-                v.Z += distDelta.Z;
-                distAll -= progress;
-
-                if (this is Player)
-                    Log.Debug("Je parcours {0} il me reste à parcourrir {1} ", progress, distAll);
-                //if (this is Player)
-                    //Log.Debug("Je suis à la position : {0} {1} je dois me rendre au {2} {3}", Position.X + v.X, Position.Z + v.Z, DestinationPosition.X, DestinationPosition.Z);
-            }
-
-            this.move(v.X, v.Z);
-            this.Angle = angle;
-        }
-
-        // HELP NEEDED
-        
-        private void WalkNew()
-        {
-            if (!(this is Player)) // DEBUG: Only for players
-                return;
-
-            // human mover speed is 0.1
-            // need to find a solution to implement this new algorithm
-            // to increase performaces.
-
-            float speed = this.Speed;
+            float speed = (this.Speed * 100f) * (timeDelta / 1000f);
             float distanceX = this.DestinationPosition.X - this.Position.X;
             float distanceZ = this.DestinationPosition.Z - this.Position.Z;
             float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
@@ -339,18 +246,24 @@ namespace Hellion.World.Structures
             if (this.Position.IsInCircle(this.DestinationPosition, 0.1f))
             {
                 this.Position = this.DestinationPosition.Clone();
-                this.DestinationPosition.Reset();
-                Log.Debug("OK");
+                this.OnArrival();
             }
             else
-            {            
+            {
                 // Normalize
                 float deltaX = distanceX / distance;
                 float deltaZ = distanceZ / distance;
 
-                this.Position.X += deltaX * speed;
-                this.Position.Z += deltaZ * speed;
-                Log.Debug("Moving: Remaining: {0}", distance);
+                float offsetX = deltaX * speed;
+                float offsetZ = deltaZ * speed;
+
+                if (Math.Abs(offsetX) > Math.Abs(distanceX))
+                    offsetX = distanceX;
+                if (Math.Abs(offsetZ) > Math.Abs(distanceZ))
+                    offsetZ = distanceZ;
+
+                this.Position.X += offsetX;
+                this.Position.Z += offsetZ;
             }
         }
 
@@ -372,6 +285,7 @@ namespace Hellion.World.Structures
                 //this.SendMoverAction((int)ObjectState.OBJSTA_STAND);
             }
         }
+
 
         // TODO: clean this mess up! :p
 
@@ -398,6 +312,15 @@ namespace Hellion.World.Structures
         }
 
         public virtual void Fight(Mover defender) { }
+
+        public virtual void OnArrival() { }
+
+        public virtual int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            return 0;
+        }
+
+        public abstract int GetWeaponAttackDamages(int weaponType);
 
         // TODO: Move this packets to an other file.
 
@@ -500,6 +423,27 @@ namespace Hellion.World.Structures
                 packet.Write(speedFactor);
 
                 this.SendToVisible(packet);
+            }
+        }
+
+        internal void SendDamagesTo(Mover defender, int damages, AttackFlags flags, Vector3 position = null, float angle = 0f)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(defender.ObjectId, SnapshotType.DAMAGE);
+                packet.Write(this.ObjectId);
+                packet.Write(damages);
+                packet.Write((int)flags);
+
+                if (flags.HasFlag(AttackFlags.AF_FLYING))
+                {
+                    packet.Write(position.X);
+                    packet.Write(position.Y);
+                    packet.Write(position.Z);
+                    packet.Write(angle * 10f);
+                }
+
+                this.SendToVisible(packet); 
             }
         }
     }

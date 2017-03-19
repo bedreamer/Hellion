@@ -1,6 +1,7 @@
 ﻿using Ether.Network;
 using Ether.Network.Packets;
 using Hellion.Core.Configuration;
+using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.ISC.Structures;
 using Hellion.Core.Network;
@@ -97,8 +98,7 @@ namespace Hellion.Login
         {
             Log.Info("New client connected from {0}", client.Socket.RemoteEndPoint.ToString());
 
-            if (client is LoginClient)
-                (client as LoginClient).Server = this;
+            client.Server = this;
         }
 
         /// <summary>
@@ -135,17 +135,17 @@ namespace Hellion.Login
             Log.Info("Loading configuration...");
 
             if (File.Exists(LoginConfigurationFile) == false)
-                ConfigurationManager.Save(new LoginConfiguration(), LoginConfigurationFile);
+                JsonHelper.Save(new LoginConfiguration(), LoginConfigurationFile);
 
-            this.LoginConfiguration = ConfigurationManager.Load<LoginConfiguration>(LoginConfigurationFile);
+            this.LoginConfiguration = JsonHelper.Load<LoginConfiguration>(LoginConfigurationFile);
 
             this.ServerConfiguration.Ip = this.LoginConfiguration.Ip;
             this.ServerConfiguration.Port = this.LoginConfiguration.Port;
 
             if (File.Exists(DatabaseConfigurationFile) == false)
-                ConfigurationManager.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
+                JsonHelper.Save(new DatabaseConfiguration(), DatabaseConfigurationFile);
 
-            this.DatabaseConfiguration = ConfigurationManager.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
+            this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
             Log.Done("Configuration loaded!");
         }

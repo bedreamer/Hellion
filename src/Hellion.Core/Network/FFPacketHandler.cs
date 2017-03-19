@@ -61,8 +61,13 @@ namespace Hellion.Core.Network
             }
             catch (Exception e)
             {
-                Log.Error(e.Message);
-                Log.Error(e.StackTrace);
+                Log.Error("Error during execution of packet {0}", header);
+                if (e.InnerException != null)
+                {
+                    Log.Error("Inner message {0}", e.InnerException.Message);
+                    Log.Error("Trace: {0}", e.InnerException.StackTrace);
+                }
+
                 return false;
             }
 

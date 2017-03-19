@@ -92,10 +92,10 @@ namespace Hellion.World.Systems
                         packet.Write(0);
                     else
                     {
-                        packet.Write<byte>(0); // Refine
+                        packet.Write(item.Refine); // Refine
                         packet.Write<byte>(0);
-                        packet.Write<byte>(0); // element (fire, water, elec...)
-                        packet.Write<byte>(0); // Refine element
+                        packet.Write(item.Element); // element (fire, water, elec...)
+                        packet.Write(item.ElementRefine); // Refine element
                     }
                 }
 
@@ -436,10 +436,10 @@ namespace Hellion.World.Systems
                         packet.Write(0);
                     else
                     {
-                        packet.Write<byte>(0); // Refine
+                        packet.Write(item.Refine); // Refine
                         packet.Write<byte>(0);
-                        packet.Write<byte>(0); // Element (fire, water, elec, ect...)
-                        packet.Write<byte>(0); // Element refine
+                        packet.Write(item.Element); // Element (fire, water, elec, ect...)
+                        packet.Write(item.ElementRefine); // Element refine
                     }
                 }
 

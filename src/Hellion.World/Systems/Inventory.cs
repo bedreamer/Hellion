@@ -72,6 +72,27 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Gets the item equiped on the part passed as parameter.
+        /// </summary>
+        /// <param name="part">Inventory part</param>
+        /// <returns></returns>
+        public Item GetEquipedItemAt(int part)
+        {
+            return this.GetItemBySlot(part + EquipOffset);
+        }
+
+        /// <summary>
+        /// Gets the right weapon item.
+        /// </summary>
+        /// <returns></returns>
+        public Item GetRightWeapon()
+        {
+            var item = this.GetItemBySlot(52);
+
+            return item == null ? Hand : item;
+        }
+
+        /// <summary>
         /// Gets an item by his unique id.
         /// </summary>
         /// <param name="uniqueId"></param>
@@ -119,7 +140,7 @@ namespace Hellion.World.Systems
                 return;
             if (this.items[sourceSlot].Id == -1 || this.items[sourceSlot].UniqueId == -1 || this.items[destSlot].UniqueId == -1)
                 return;
-            
+
             var sourceItem = this.items[sourceSlot];
             var destItem = this.items[destSlot];
 
@@ -228,7 +249,7 @@ namespace Hellion.World.Systems
                     this.player.SendCreateItem(item);
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -286,7 +307,10 @@ namespace Hellion.World.Systems
                         CreatorId = item.CreatorId,
                         ItemId = item.Id,
                         ItemCount = item.Quantity,
-                        ItemSlot = item.Slot
+                        ItemSlot = item.Slot,
+                        Refine = item.Refine,
+                        Element = item.Element,
+                        ElementRefine = item.ElementRefine
                     };
 
                     DatabaseService.Items.Add(dbItem);
@@ -296,7 +320,10 @@ namespace Hellion.World.Systems
                     dbItem.ItemId = item.Id;
                     dbItem.ItemCount = item.Quantity;
                     dbItem.ItemSlot = item.Slot;
-                    // TODO: add refine and updates
+                    dbItem.Refine = item.Refine;
+                    dbItem.Element = item.Element;
+                    dbItem.ElementRefine = item.ElementRefine;
+
                     DatabaseService.Items.Update(dbItem);
                 }
             }

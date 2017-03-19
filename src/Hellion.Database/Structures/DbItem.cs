@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hellion.Database.Structures
 {
@@ -27,6 +23,15 @@ namespace Hellion.Database.Structures
 
         [Column("itemCreatorId")]
         public int CreatorId { get; set; }
+
+        [Column("refine")]
+        public byte Refine { get; set; }
+
+        [Column("element")]
+        public byte Element { get; set; }
+
+        [Column("elementRefine")]
+        public byte ElementRefine { get; set; }
 
         public DbCharacter Character { get; set; }
     }
