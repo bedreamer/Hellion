@@ -1,9 +1,11 @@
-﻿using Hellion.Core;
+﻿using Ether.Network;
+using Hellion.Core;
 using Hellion.Core.Data.Headers;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures;
 using Hellion.World.Managers;
+using Hellion.World.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,8 @@ namespace Hellion.World.Structures
     {
         private long moveTimer;
         private long attackTimer;
+        private long despawnTime;
+        private long respawnTime;
         private Region region;
 
         /// <summary>
@@ -92,6 +96,12 @@ namespace Hellion.World.Structures
         /// </summary>
         public override void Update()
         {
+            if (this.IsDead)
+            {
+                this.CheckRespawn();
+                return;
+            }
+
             if (this.IsFighting)
                 this.ProcessFight();
             else
@@ -146,6 +156,35 @@ namespace Hellion.World.Structures
                 this.MovingFlags |= ObjectState.OBJSTA_FMOVE;
                 this.SendMoverMoving();
             }
+        }
+
+        private void CheckRespawn()
+        {
+            if (this.IsSpawned)
+            {
+                if (this.despawnTime <= Time.TimeInSeconds())
+                {
+                    var respawner = this.region as RespawnerRegion;
+                    this.respawnTime = Time.TimeInSeconds() + respawner.RespawnTime;
+                    this.IsSpawned = false;
+                }
+            }
+            else
+            {
+                if (this.respawnTime <= Time.TimeInSeconds())
+                {
+                    this.IsDead = false;
+                    this.IsSpawned = true;
+                    this.Attributes[DefineAttributes.HP] = this.Data.AddHp;
+                    this.Attributes[DefineAttributes.MP] = this.Data.AddMp;
+                }
+            }
+        }
+
+        public override void Die()
+        {
+            this.despawnTime = Time.TimeInSeconds() + 3;
+            base.Die();
         }
 
         public override void Fight(Mover defender)

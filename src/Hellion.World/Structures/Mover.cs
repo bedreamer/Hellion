@@ -315,6 +315,14 @@ namespace Hellion.World.Structures
 
         public virtual void OnArrival() { }
 
+        public virtual void Die()
+        {
+            this.IsDead = true;
+
+            this.RemoveTarget();
+            this.SendDeath();
+        }
+
         public virtual int GetDefense(Mover attacker, AttackFlags flags)
         {
             return 0;
@@ -444,6 +452,17 @@ namespace Hellion.World.Structures
                 }
 
                 this.SendToVisible(packet); 
+            }
+        }
+
+        internal void SendDeath()
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOVERDEATH);
+
+                packet.Write<long>(0);
+                this.SendToVisible(packet);
             }
         }
     }

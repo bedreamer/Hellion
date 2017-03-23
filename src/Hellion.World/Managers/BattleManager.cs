@@ -82,10 +82,6 @@ namespace Hellion.World.Managers
             AttackFlags flags = GetAttackFlags(attacker, defender);
             int damages = CalculateMeleeDamages(attacker, defender);
 
-            if (flags == AttackFlags.AF_MISS)
-            {
-                Log.Debug("{0} misses {1}", attacker.Name, defender.Name);
-            }
             if (flags.HasFlag(AttackFlags.AF_BLOCKING))
             {
                 float blockFactor = GetBlockFactor(attacker, defender);
@@ -103,7 +99,13 @@ namespace Hellion.World.Managers
             }
             
             damages -= GetDefense(attacker, defender, flags);
-            
+
+            if (flags == AttackFlags.AF_MISS)
+            {
+                Log.Debug("{0} misses {1}", attacker.Name, defender.Name);
+                damages = 0;
+            }
+
             if (damages < 0)
                 damages = 0;
 
@@ -118,11 +120,17 @@ namespace Hellion.World.Managers
             defender.Attributes[DefineAttributes.HP] -= damages;
 
             if (defender.Attributes[DefineAttributes.HP] <= 0)
-                defender.IsDead = true;
+                defender.Die();
 
             if (defender.IsDead)
             {
-                // send dead
+                if (defender is Monster && attacker is Player)
+                {
+                }
+
+                if (defender is Player && attacker is Monster)
+                {
+                }
             }
         }
 
