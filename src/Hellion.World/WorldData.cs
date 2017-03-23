@@ -2,6 +2,7 @@
 using Hellion.Core.Configuration;
 using Hellion.Core.Data.Resources;
 using Hellion.Core.IO;
+using Hellion.Core.Structures;
 using Hellion.Core.Structures.Dialogs;
 using Hellion.Data;
 using Hellion.World.Managers;
@@ -20,7 +21,7 @@ namespace Hellion.World
         private Dictionary<string, string> texts = new Dictionary<string, string>();
 
         private static Dictionary<int, ItemData> itemsData = new Dictionary<int, ItemData>();
-        private static Dictionary<int, MonsterData> monstersData = new Dictionary<int, MonsterData>();
+        private static Dictionary<int, MoverData> moversData = new Dictionary<int, MoverData>();
         private static Dictionary<string, DialogData> dialogData = new Dictionary<string, DialogData>();
         private static Dictionary<string, NPCData> npcData = new Dictionary<string, NPCData>();
         private static Dictionary<int, SkillData> skillData = new Dictionary<int, SkillData>();
@@ -44,11 +45,11 @@ namespace Hellion.World
         }
 
         /// <summary>
-        /// Gets the monsters data.
+        /// Gets the movers data.
         /// </summary>
-        public static Dictionary<int, MonsterData> MonstersData
+        public static Dictionary<int, MoverData> MoversData
         {
-            get { return monstersData; }
+            get { return moversData; }
         }
 
         /// <summary>
@@ -300,17 +301,17 @@ namespace Hellion.World
 
                 while (propMover.Read())
                 {
-                    var monsterData = new MonsterData(propMover);
+                    var monsterData = new MoverData(propMover);
 
-                    if (monstersData.ContainsKey(monsterData.Id))
-                        monstersData[monsterData.Id] = monsterData;
+                    if (moversData.ContainsKey(monsterData.Id))
+                        moversData[monsterData.Id] = monsterData;
                     else
-                        monstersData.Add(monsterData.Id, monsterData);
+                        moversData.Add(monsterData.Id, monsterData);
 
                     Log.Loading("Loading {0}/{1} movers...", propMover.ReadingIndex, propMover.Count);
                 }
 
-                Log.Done("{0} movers loaded!", monstersData.Count);
+                Log.Done("{0} movers loaded!", moversData.Count);
             }
             catch (Exception e)
             {

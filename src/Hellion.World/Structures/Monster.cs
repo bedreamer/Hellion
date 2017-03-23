@@ -29,9 +29,9 @@ namespace Hellion.World.Structures
         /// <summary>
         /// Gets the monster's data.
         /// </summary>
-        public MonsterData Data
+        public MoverData Data
         {
-            get { return WorldServer.MonstersData.ContainsKey(this.ModelId) ? WorldServer.MonstersData[this.ModelId] : new MonsterData(); }
+            get { return WorldServer.MoversData.ContainsKey(this.ModelId) ? WorldServer.MoversData[this.ModelId] : new MoverData(); }
         }
 
         /// <summary>

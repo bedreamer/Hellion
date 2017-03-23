@@ -1,12 +1,11 @@
-﻿using Hellion.Core;
-using Hellion.Core.Data.Resources;
+﻿using Hellion.Core.Data.Resources;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures.Dialogs;
 using Hellion.World.Structures;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using Hellion.Core.Structures;
 
 namespace Hellion.World.Systems
 {

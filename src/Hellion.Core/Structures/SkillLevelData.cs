@@ -1,6 +1,6 @@
 ﻿using Hellion.Core.Data.Resources;
 
-namespace Hellion.World.Structures
+namespace Hellion.Core.Structures
 {
     public struct SkillLevelData
     {

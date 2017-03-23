@@ -46,7 +46,7 @@ namespace Hellion.World.Structures
         {
             get
             {
-                float moverSpeed = WorldServer.MonstersData[this.ModelId].Speed;
+                float moverSpeed = WorldServer.MoversData[this.ModelId].Speed;
 
                 return moverSpeed * this.SpeedFactor;
             }

@@ -1,6 +1,6 @@
 ﻿using Hellion.Core.Data.Resources;
 
-namespace Hellion.World.Structures
+namespace Hellion.Core.Structures
 {
     /// <summary>
     /// Represents an Item data from the propItem.txt resource file located in dataSub2.res.
