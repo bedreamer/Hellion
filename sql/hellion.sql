@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `hellion` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `hellion`;
 -- MySQL dump 10.13  Distrib 5.7.12, for Win64 (x86_64)
 --
 -- Host: localhost    Database: hellion
@@ -51,6 +49,8 @@ CREATE TABLE `characters` (
   `slot` int(11) NOT NULL,
   `stamina` int(11) NOT NULL,
   `strength` int(11) NOT NULL,
+  `statPoints` int(11) NOT NULL,
+  `skillPoints` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -75,7 +75,7 @@ CREATE TABLE `items` (
   PRIMARY KEY (`id`),
   KEY `IX_items_characterId` (`characterId`),
   CONSTRAINT `FK_items_characters_characterId` FOREIGN KEY (`characterId`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,4 +104,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-13 21:42:02
+-- Dump completed on 2017-03-25 14:23:36
