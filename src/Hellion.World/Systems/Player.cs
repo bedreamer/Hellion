@@ -267,6 +267,8 @@ namespace Hellion.World.Systems
                 dbCharacter.Slot = this.Slot;
                 dbCharacter.Stamina = this.Attributes[DefineAttributes.STA];
                 dbCharacter.Strength = this.Attributes[DefineAttributes.STR];
+                dbCharacter.StatPoints = this.StatPoints;
+                dbCharacter.SkillPoints = this.SkillPoints;
 
                 this.Inventory.Save();
                 // TODO: save skills
@@ -442,6 +444,8 @@ namespace Hellion.World.Systems
                 {
                     // TODO: set fly level
                 }
+
+                this.Experience = 0;
 
                 if (expTemp > 0)
                     this.GiveExperience(expTemp);
