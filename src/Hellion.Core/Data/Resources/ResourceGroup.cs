@@ -79,7 +79,7 @@ namespace Hellion.Data
                     if (linesData[i + 1] != null && linesData[i + 1].StartsWith("{") == true)
                     {
                         int block = 0;
-                        var group = new Group(linesData[i]);
+                        var group = new Group(linesData[i].Trim());
                         ++i;
 
                         while (true)

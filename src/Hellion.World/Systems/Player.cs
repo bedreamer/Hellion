@@ -88,6 +88,16 @@ namespace Hellion.World.Systems
         public int BankCode { get; set; }
 
         /// <summary>
+        /// Gets the player's remaining stat points.
+        /// </summary>
+        public int StatPoints { get; set; }
+
+        /// <summary>
+        /// Gets the player's remaining skill points.
+        /// </summary>
+        public int SkillPoints { get; set; }
+
+        /// <summary>
         /// Gets the player's chat module.
         /// </summary>
         public Chat Chat { get; private set; }
@@ -163,6 +173,9 @@ namespace Hellion.World.Systems
             this.Angle = dbCharacter.Angle;
             this.DestinationPosition = this.Position.Clone();
             this.IsFlying = this.Inventory.HasFlyingObjectEquiped();
+
+            this.StatPoints = dbCharacter.StatPoints;
+            this.SkillPoints = dbCharacter.SkillPoints;
             
             // Initialize quests, guild, friends, skills etc...
         }
@@ -403,6 +416,44 @@ namespace Hellion.World.Systems
             int defense = (min + max) / 2;
 
             return defense > 0 ? defense : 0;
+        }
+
+        public int CalculateExperience(int baseExperience)
+        {
+            return (int)(baseExperience * this.Client.Server.WorldConfiguration.Rates.Exp);
+        }
+
+        public bool GiveExperience(long experience)
+        {
+            if (experience <= 0 || this.Attributes[DefineAttributes.HP] <= 0)
+                return false;
+
+            int nextLevel = this.Level + 1;
+            this.Experience += experience;
+
+            if (this.Experience > WorldServer.ExpTable[nextLevel].Exp) // Level up!
+            {
+                long expTemp = this.Experience - WorldServer.ExpTable[nextLevel].Exp;
+
+                this.StatPoints += (int)WorldServer.ExpTable[nextLevel].Gp;
+                this.Level++;
+
+                if (this.Level == 20)
+                {
+                    // TODO: set fly level
+                }
+
+                if (expTemp > 0)
+                    this.GiveExperience(expTemp);
+
+                return true;
+            }
+            
+            return false;
+        }
+
+        private void IncreaseExperience(int experience)
+        {
         }
     }
 }

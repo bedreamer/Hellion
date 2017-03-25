@@ -126,6 +126,18 @@ namespace Hellion.World.Managers
             {
                 if (defender is Monster && attacker is Player)
                 {
+                    var monster = defender as Monster;
+                    var player = attacker as Player;
+                    int experience = player.CalculateExperience(monster.Data.ExpValue);
+
+                    // TODO: give experience for party
+                    if (player.GiveExperience(experience))
+                    {
+                        player.SendSetLevel();
+                        player.SendStatPoints();
+                    }
+
+                    player.SendExperience();
                 }
 
                 if (defender is Player && attacker is Monster)

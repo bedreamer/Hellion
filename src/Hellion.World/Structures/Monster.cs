@@ -183,7 +183,7 @@ namespace Hellion.World.Structures
 
         public override void Die()
         {
-            this.despawnTime = Time.TimeInSeconds() + 3;
+            this.despawnTime = Time.TimeInSeconds() + 5;
             base.Die();
         }
 
@@ -198,6 +198,7 @@ namespace Hellion.World.Structures
                 int motion = 29; // TODO: 28+attackType (IA)
                 int damages = BattleManager.CalculateMeleeDamages(this, defender);
 
+                //BattleManager.Process(this, defender);
                 this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
             }
             else

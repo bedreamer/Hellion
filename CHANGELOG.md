@@ -1,5 +1,17 @@
 ## Hellion ChangeLog
 
+### Update #15
+
+Date: 25/03/2017
+
+- Database
+  - Add `StatPoints` field to `characters` table
+  - Add `SkillPoints` field to `characters` table
+- World
+  - Monsters died and respawn after some time
+  - Player win experience when killing monster
+  - Player level-up
+
 ### Update #14
 
 Date: 18/03/2017
