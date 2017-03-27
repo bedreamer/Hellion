@@ -1,5 +1,6 @@
 ﻿using Ether.Network.Packets;
 using Hellion.Core.Data;
+using Hellion.Core.Network;
 using Hellion.Core.Structures;
 using Hellion.World.Systems;
 using System.Collections.Generic;

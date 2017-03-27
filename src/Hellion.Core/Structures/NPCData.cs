@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Hellion.World.Structures
+namespace Hellion.Core.Structures
 {
     public struct NPCData
     {

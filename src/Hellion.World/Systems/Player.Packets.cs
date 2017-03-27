@@ -603,7 +603,7 @@ namespace Hellion.World.Systems
             }
         }
 
-        public void SendMoverAngle(Vector3 direction, long tick, float turnAngle)
+        internal void SendMoverAngle(Vector3 direction, long tick, float turnAngle)
         {
             using (var packet = new FFPacket())
             {
@@ -622,6 +622,45 @@ namespace Hellion.World.Systems
                 packet.Write(tick);
 
                 base.SendToVisible(packet);
+            }
+        }
+
+        internal void SendExperience()
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETEXPERIENCE);
+                packet.Write(this.Experience);
+                packet.Write((short)this.Level);
+                packet.Write(0);
+                packet.Write(this.SkillPoints);
+                packet.Write(long.MaxValue);
+                packet.Write(short.MaxValue);
+
+                this.Send(packet);
+            }
+        }
+
+        internal void SendSetLevel()
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETLEVEL);
+                packet.Write((short)this.Level);
+
+                base.SendToVisible(packet);
+            }
+        }
+
+        internal void SendStatPoints()
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SET_GROWTH_LEARNING_POINT);
+                packet.Write((long)this.StatPoints);
+                packet.Write<long>(0);
+
+                this.Send(packet);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Hellion.Core.Data.Headers;
+using Hellion.Core.Structures;
 using Hellion.World.Structures;
 using System;
 using System.Collections.Generic;

@@ -2,6 +2,7 @@
 using Hellion.Core.Configuration;
 using Hellion.Core.Data.Resources;
 using Hellion.Core.IO;
+using Hellion.Core.Structures;
 using Hellion.Core.Structures.Dialogs;
 using Hellion.Data;
 using Hellion.World.Managers;
@@ -19,8 +20,9 @@ namespace Hellion.World
         private Dictionary<string, int> defines = new Dictionary<string, int>();
         private Dictionary<string, string> texts = new Dictionary<string, string>();
 
+        private static ExpTableData[] expTable;
         private static Dictionary<int, ItemData> itemsData = new Dictionary<int, ItemData>();
-        private static Dictionary<int, MonsterData> monstersData = new Dictionary<int, MonsterData>();
+        private static Dictionary<int, MoverData> moversData = new Dictionary<int, MoverData>();
         private static Dictionary<string, DialogData> dialogData = new Dictionary<string, DialogData>();
         private static Dictionary<string, NPCData> npcData = new Dictionary<string, NPCData>();
         private static Dictionary<int, SkillData> skillData = new Dictionary<int, SkillData>();
@@ -44,11 +46,11 @@ namespace Hellion.World
         }
 
         /// <summary>
-        /// Gets the monsters data.
+        /// Gets the movers data.
         /// </summary>
-        public static Dictionary<int, MonsterData> MonstersData
+        public static Dictionary<int, MoverData> MoversData
         {
-            get { return monstersData; }
+            get { return moversData; }
         }
 
         /// <summary>
@@ -84,6 +86,14 @@ namespace Hellion.World
         }
 
         /// <summary>
+        /// Gets the player experience table.
+        /// </summary>
+        public static ExpTableData[] ExpTable
+        {
+            get { return expTable; }
+        }
+
+        /// <summary>
         /// Loads the world server data like resources, maps, quests, dialogs, etc...
         /// </summary>
         private void LoadData()
@@ -96,6 +106,7 @@ namespace Hellion.World
             this.LoadItems();
             this.LoadNpc();
             this.LoadMovers();
+            this.LoadExpTable();
             this.LoadSkills();
             this.LoadJobs();
             this.LoadMaps();
@@ -202,7 +213,7 @@ namespace Hellion.World
         {
             this.LoadNpcDialogs();
 
-            Log.Info("Loading NPC data...");
+            Log.Loading("Loading NPC data...");
 
             string[] files = {
                                   "data//res//dataSub1//character.inc",
@@ -230,7 +241,7 @@ namespace Hellion.World
                 }
             }
 
-            Log.Done("{0} npcs data loaded!", npcData.Count);
+            Log.Done("{0} npcs data loaded!\t\t\t", npcData.Count);
         }
 
         /// <summary>
@@ -238,7 +249,7 @@ namespace Hellion.World
         /// </summary>
         private void LoadNpcDialogs()
         {
-            Log.Info("Loading NPC dialogs for '{0}' language...", this.WorldConfiguration.Language);
+            Log.Loading("Loading NPC dialogs for '{0}' language...", this.WorldConfiguration.Language);
 
             string dialogLanguagePath = $"dialogs/{this.WorldConfiguration.Language}";
             string dialogPath = Path.Combine(Global.DataPath, dialogLanguagePath);
@@ -278,7 +289,7 @@ namespace Hellion.World
                 }
             }
 
-            Log.Done("{0} npc dialogs loaded!", dialogData.Count);
+            Log.Done("{0} npc dialogs loaded for language '{1}'!\t\t\t", dialogData.Count, this.WorldConfiguration.Language);
         }
 
         /// <summary>
@@ -286,7 +297,7 @@ namespace Hellion.World
         /// </summary>
         private void LoadMovers()
         {
-            Log.Info("Loading movers data...");
+            Log.Loading("Loading movers data...");
 
             try
             {
@@ -300,17 +311,17 @@ namespace Hellion.World
 
                 while (propMover.Read())
                 {
-                    var monsterData = new MonsterData(propMover);
+                    var monsterData = new MoverData(propMover);
 
-                    if (monstersData.ContainsKey(monsterData.Id))
-                        monstersData[monsterData.Id] = monsterData;
+                    if (moversData.ContainsKey(monsterData.Id))
+                        moversData[monsterData.Id] = monsterData;
                     else
-                        monstersData.Add(monsterData.Id, monsterData);
+                        moversData.Add(monsterData.Id, monsterData);
 
                     Log.Loading("Loading {0}/{1} movers...", propMover.ReadingIndex, propMover.Count);
                 }
 
-                Log.Done("{0} movers loaded!", monstersData.Count);
+                Log.Done("{0} movers loaded!\t\t\t", moversData.Count);
             }
             catch (Exception e)
             {
@@ -323,7 +334,7 @@ namespace Hellion.World
         /// </summary>
         private void LoadMaps()
         {
-            Log.Info("Loading maps...");
+            Log.Loading("Loading maps...");
 
             IEnumerable<MapConfiguration> maps = this.WorldConfiguration.Maps;
 
@@ -337,7 +348,7 @@ namespace Hellion.World
                 MapManager.AddMap(newMap);
             }
 
-            Log.Done("{0} maps loaded!", MapManager.Count);
+            Log.Done("{0} maps loaded!\t\t\t", MapManager.Count);
         }
 
         /// <summary>
@@ -347,16 +358,15 @@ namespace Hellion.World
         {
             try
             {
-                Log.Info("Loading items...");
+                Log.Loading("Loading items...");
                 string propItemPath = Path.Combine(Global.DataPath, "res", "dataSub2", "propItem.txt");
                 var propItemTable = new ResourceTable(propItemPath);
 
                 propItemTable.AddTexts(texts);
                 propItemTable.AddDefines(defines);
                 propItemTable.SetTableHeaders("dwVersion", "dwID", "szName", "dwNum", "dwPackMax", "dwItemKind1", "dwItemKind2", "dwItemKind3", "dwItemJob", "bPermanence", "dwUseable", "dwItemSex", "dwCost", "dwEndurance", "nAbrasion", "nMaxRepair", "dwHanded", "dwFlag", "dwParts", "dwPartsub", "bPartFile", "dwExclusive", "dwBasePartsIgnore", "dwItemLV", "dwItemRare", "dwShopAble", "bLog", "bCharged", "dwLinkKindBullet", "dwLinkKind", "dwAbilityMin", "dwAbilityMax", "eItemType", "wItemEAtk", "dwParry", "dwBlockRating", "dwAddSkillMin", "dwAddSkillMax", "dwAtkStyle", "dwWeaponType", "dwItemAtkOrder1", "dwItemAtkOrder2", "dwItemAtkOrder3", "dwItemAtkOrder4", "bContinnuousPain", "dwShellQuantity", "dwRecoil", "dwLoadingTime", "nAdjHitRate", "fAttackSpeed", "dwDmgShift", "dwAttackRange", "dwProbability", "dwDestParam1", "dwDestParam2", "dwDestParam3", "nAdjParamVal1", "nAdjParamVal2", "nAdjParamVal3", "dwChgParamVal1", "dwChgParamVal2", "dwChgParamVal3", "dwDestData1", "dwDestData2", "dwDestData3", "dwActiveSkill", "dwActiveSkillLv", "dwActiveSkillPer", "dwReqMp", "dwReqFp", "dwReqDisLV", "dwReSkill1", "dwReSkillLevel1", "dwReSkill2", "dwReSkillLevel2", "dwSkillReadyType", "dwSkillReady", "dwSkillRange", "dwSfxElemental", "dwSfxObj", "dwSfxObj2", "dwSfxObj3", "dwSfxObj4", "dwSfxObj5", "dwUseMotion", "dwCircleTime", "dwSkillTime", "dwExeTarget", "dwUseChance", "dwSpellRegion", "dwSpellType", "dwReferStat1", "dwReferStat2", "dwReferTarget1", "dwReferTarget2", "dwReferValue1", "dwReferValue2", "dwSkillType", "fItemResistElecricity", "fItemResistFire", "fItemResistWind", "fItemResistWater", "fItemResistEarth", "nEvildoing", "dwExpertLV", "ExpertMax", "dwSubDefine", "dwExp", "dwComboStyle", "fFlightSpeed", "fFlightLRAngle", "fFlightTBAngle", "dwFlightLimit", "dwFFuelReMax", "dwAFuelReMax", "dwFuelRe", "dwLimitLevel1", "dwReflect", "dwSndAttack1", "dwSndAttack2", "szIcon", "dwQuestID", "szTextFile", "szComment");
-
-
                 propItemTable.Parse();
+
                 while (propItemTable.Read())
                 {
                     var itemData = new ItemData(propItemTable);
@@ -369,7 +379,7 @@ namespace Hellion.World
                     Log.Loading("Loading {0}/{1} items...", propItemTable.ReadingIndex, propItemTable.Count);
                 }
 
-                Log.Done("{0} items loaded!", itemsData.Count);
+                Log.Done("{0} items loaded!\t\t\t", itemsData.Count);
             }
             catch (Exception e)
             {
@@ -384,7 +394,7 @@ namespace Hellion.World
         {
             try
             {
-                Log.Info("Loading skills...");
+                Log.Loading("Loading skills...");
                 string propSkillPath = Path.Combine(Global.DataPath, "res", "data", "propSkill.txt");
                 var propSkillTable = new ResourceTable(propSkillPath);
 
@@ -418,12 +428,11 @@ namespace Hellion.World
                         skillData[skillLevel.SkillID].Levels.Add(skillLevel);
                 }
 
-                Log.Done("{0} skills loaded!", skillData.Count);
+                Log.Done("{0} skills loaded!\t\t\t", skillData.Count);
             }
             catch (Exception e)
             {
-                Log.Error("Cannot load items: {0}", e.Message);
-
+                Log.Error("Cannot load skills: {0}", e.Message);
             }
         }
 
@@ -447,6 +456,41 @@ namespace Hellion.World
             }
             catch (Exception e)
             {
+                Log.Error("Cannot load job properties: {0}", e.Message);
+            }
+        }
+
+        private void LoadExpTable()
+        {
+            try
+            {
+                string expTablePath = Path.Combine(Global.DataPath, "res", "data", "expTable.inc");
+                var expTableData = new ResourceGroup(expTablePath);
+
+                expTableData.Parse();
+
+                foreach (var table in expTableData.Groups)
+                {
+                    if (table.Name == "expCharacter")
+                    {
+                        expTable = new ExpTableData[table.Content.Count - 1];
+
+                        for (int i = 1; i < table.Content.Count; ++i)
+                        {
+                            int level = i - 1;
+                            string[] expData = table.Content[i].Split('\t');
+
+                            if (expData.Length < 4)
+                                continue;
+
+                            expTable[level] = new ExpTableData(level, expData);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Cannot load exp table: {0}", e.Message);
             }
         }
     }

@@ -1,11 +1,11 @@
 ﻿using Hellion.Core.Data.Resources;
 
-namespace Hellion.World.Structures
+namespace Hellion.Core.Structures
 {
     /// <summary>
-    /// Represents a Monster data structure from the mover.txt resource file from the data.res.
+    /// Represents a Mover data structure from the mover.txt resource file from the data.res.
     /// </summary>
-    public class MonsterData
+    public class MoverData
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
@@ -99,17 +99,17 @@ namespace Hellion.World.Structures
         public int MaxItems { get; private set; }
 
         /// <summary>
-        /// Creates an empty MonsterData instance.
+        /// Creates an empty <see cref="MoverData"/> instance.
         /// </summary>
-        public MonsterData()
+        public MoverData()
         {
         }
 
         /// <summary>
-        /// Creates a MonsterData instance from a <see cref="ResourceTable"/>.
+        /// Creates a <see cref="MoverData"/> instance from a <see cref="ResourceTable"/>.
         /// </summary>
         /// <param name="table"></param>
-        public MonsterData(ResourceTable table)
+        public MoverData(ResourceTable table)
         {
             if (table == null)
                 return;
@@ -144,7 +144,7 @@ namespace Hellion.World.Structures
             this.LegRate = table.Get<int>("dwLegRate");
             this.AttackSpeed = table.Get<int>("dwAttackSpeed");
             this.ReAttackDelay = table.Get<int>("dwReAttackDelay");
-            this.AddHp = (int)((double)table.Get<int>("dwAddHp") * 1.0); // MONSTER HP RATE
+            this.AddHp = (int)((double)table.Get<int>("dwAddHp") * 1.0); // MOVER HP RATE
             this.MaxHP = this.AddHp;
             this.AddMp = table.Get<int>("dwAddMp");
             this.NaturalArmor = table.Get<int>("dwNaturealArmor");

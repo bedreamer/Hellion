@@ -1,9 +1,11 @@
-﻿using Hellion.Core;
+﻿using Ether.Network;
+using Hellion.Core;
 using Hellion.Core.Data.Headers;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures;
 using Hellion.World.Managers;
+using Hellion.World.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,8 @@ namespace Hellion.World.Structures
     {
         private long moveTimer;
         private long attackTimer;
+        private long despawnTime;
+        private long respawnTime;
         private Region region;
 
         /// <summary>
@@ -29,9 +33,9 @@ namespace Hellion.World.Structures
         /// <summary>
         /// Gets the monster's data.
         /// </summary>
-        public MonsterData Data
+        public MoverData Data
         {
-            get { return WorldServer.MonstersData.ContainsKey(this.ModelId) ? WorldServer.MonstersData[this.ModelId] : new MonsterData(); }
+            get { return WorldServer.MoversData.ContainsKey(this.ModelId) ? WorldServer.MoversData[this.ModelId] : new MoverData(); }
         }
 
         /// <summary>
@@ -92,6 +96,12 @@ namespace Hellion.World.Structures
         /// </summary>
         public override void Update()
         {
+            if (this.IsDead)
+            {
+                this.CheckRespawn();
+                return;
+            }
+
             if (this.IsFighting)
                 this.ProcessFight();
             else
@@ -148,6 +158,35 @@ namespace Hellion.World.Structures
             }
         }
 
+        private void CheckRespawn()
+        {
+            if (this.IsSpawned)
+            {
+                if (this.despawnTime <= Time.TimeInSeconds())
+                {
+                    var respawner = this.region as RespawnerRegion;
+                    this.respawnTime = Time.TimeInSeconds() + respawner.RespawnTime;
+                    this.IsSpawned = false;
+                }
+            }
+            else
+            {
+                if (this.respawnTime <= Time.TimeInSeconds())
+                {
+                    this.IsDead = false;
+                    this.IsSpawned = true;
+                    this.Attributes[DefineAttributes.HP] = this.Data.AddHp;
+                    this.Attributes[DefineAttributes.MP] = this.Data.AddMp;
+                }
+            }
+        }
+
+        public override void Die()
+        {
+            this.despawnTime = Time.TimeInSeconds() + 5;
+            base.Die();
+        }
+
         public override void Fight(Mover defender)
         {
             if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
@@ -159,6 +198,7 @@ namespace Hellion.World.Structures
                 int motion = 29; // TODO: 28+attackType (IA)
                 int damages = BattleManager.CalculateMeleeDamages(this, defender);
 
+                //BattleManager.Process(this, defender);
                 this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
             }
             else

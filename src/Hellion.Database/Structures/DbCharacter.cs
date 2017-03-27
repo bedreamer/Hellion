@@ -87,6 +87,12 @@ namespace Hellion.Database.Structures
         [Column("bankCode")]
         public int BankCode { get; set; }
 
+        [Column("statPoints")]
+        public int StatPoints { get; set; }
+
+        [Column("skillPoints")]
+        public int SkillPoints { get; set; }
+
         public virtual ICollection<DbItem> Items { get; set; }
 
         public DbCharacter()

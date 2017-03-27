@@ -203,7 +203,9 @@ namespace Hellion.World.Systems
                 this.UpdatePlayers();
                 this.UpdateMonsters();
                 this.UpdateNpc();
-                this.UpdateRegions();
+
+                foreach (var region in this.regions)
+                    region.Update();
 
                 Thread.Sleep(100);
             }
@@ -254,7 +256,7 @@ namespace Hellion.World.Systems
                     {
                         foreach (var monster in this.monsters)
                         {
-                            if (player.CanSee(monster))
+                            if (player.CanSee(monster) && monster.IsSpawned)
                             {
                                 if (!player.SpawnedObjects.Contains(monster))
                                     player.SpawnObject(monster);
@@ -276,15 +278,7 @@ namespace Hellion.World.Systems
             {
                 foreach (var monster in this.monsters)
                 {
-                    if (!monster.IsSpawned)
-                        return;
-
-                    if (!monster.IsDead)
-                        monster.Update();
-                    else
-                    {
-                        // monster is dead, check respawn
-                    }
+                    monster.Update();
 
                     lock (syncLockClient)
                     {
@@ -336,8 +330,6 @@ namespace Hellion.World.Systems
         /// </summary>
         private void UpdateRegions()
         {
-            foreach (var region in this.regions)
-                region.Update();
         }
     }
 }
