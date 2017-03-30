@@ -18,7 +18,6 @@ namespace Hellion.World.Systems
                 packet.StartNewMergedPacket(this.ObjectId, SnapshotType.ENVIRONMENTALL, 0x0000FF00);
                 packet.Write(0); // Get weather by season
 
-
                 packet.StartNewMergedPacket(this.ObjectId, SnapshotType.WORLD_READINFO);
                 packet.Write(this.MapId);
                 packet.Write(this.Position.X);
@@ -661,6 +660,30 @@ namespace Hellion.World.Systems
                 packet.Write<long>(0);
 
                 this.Send(packet);
+            }
+        }
+        
+        internal void SendChangeFace(int faceId)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(-1, SnapshotType.CHANGEFACE);
+                packet.Write(this.Id);
+                packet.Write(faceId);
+
+                this.SendToVisible(packet);
+            }
+        }
+
+        internal void SendUpdateDestParam(DefineAttributes attr, int newvalue)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETPOINTPARAM);
+                packet.Write((int)attr);
+                packet.Write(newvalue);
+
+                this.SendToVisible(packet);
             }
         }
     }
