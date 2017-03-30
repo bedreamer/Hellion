@@ -675,13 +675,13 @@ namespace Hellion.World.Systems
             }
         }
 
-        internal void SendUpdateDestParam(DefineAttributes attr, int newvalue)
+        internal void SendUpdateDestParam(DefineAttributes attr, int newValue)
         {
             using (var packet = new FFPacket())
             {
                 packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETPOINTPARAM);
                 packet.Write((int)attr);
-                packet.Write(newvalue);
+                packet.Write(newValue);
 
                 this.SendToVisible(packet);
             }

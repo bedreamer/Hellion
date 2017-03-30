@@ -34,7 +34,7 @@ namespace Hellion.World.Client
         }
 
         [FFIncomingPacket(PacketType.CHANGEFACE)]
-        public void OnchangeFace(FFPacket packet)
+        public void OnChangeFace(FFPacket packet)
         {
             var objectId = packet.Read<int>();
             var faceId = packet.Read<int>();
