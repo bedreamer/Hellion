@@ -1,5 +1,13 @@
 ## Hellion ChangeLog
 
+### Update #16
+
+Date: 01/04/2017
+
+- World
+  - Add `Hair Designer` NPC
+  - Add `Makeup Artist` NPC
+
 ### Update #15
 
 Date: 25/03/2017
