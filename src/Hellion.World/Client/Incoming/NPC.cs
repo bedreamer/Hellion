@@ -80,6 +80,7 @@ namespace Hellion.World.Client
 
             if (cost > 0 && this.Player.Gold >= cost)
             {
+                this.Player.HairColor = hairColor;
                 this.Player.HairId = hairId;
                 this.Player.Gold -= cost;
                 
