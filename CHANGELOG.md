@@ -5,8 +5,8 @@
 Date: 01/04/2017
 
 - World
-  - Add `Hair Designer` NPC
-  - Add `Makeup Artist` NPC
+  - Add `Hair Designer` NPC [PR #49](https://github.com/Eastrall/Hellion/pull/49)
+  - Add `Makeup Artist` NPC [PR #50](https://github.com/Eastrall/Hellion/pull/50)
 
 ### Update #15
 
