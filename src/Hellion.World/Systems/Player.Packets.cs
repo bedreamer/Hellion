@@ -686,5 +686,19 @@ namespace Hellion.World.Systems
                 this.SendToVisible(packet);
             }
         }
+
+        internal void SendChangeHair(byte hairId, byte red, byte green, byte blue)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SET_HAIR);
+                packet.Write(hairId);
+                packet.Write(red);
+                packet.Write(green);
+                packet.Write(blue);
+
+                this.SendToVisible(packet);
+            }
+        }
     }
 }
