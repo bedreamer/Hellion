@@ -110,7 +110,7 @@ namespace Hellion.World.Systems
                 packet.Write(this.Gold);
                 packet.Write(this.Experience);
                 packet.Write(0); // skill level
-                packet.Write(0); // skill points
+                packet.Write(this.SkillPoints); // skill points
                 packet.Write<long>(0); // death exp
                 packet.Write(0); // death level
 
@@ -128,7 +128,7 @@ namespace Hellion.World.Systems
                 packet.Write<byte>(0);
 
                 packet.Write(42); // murderer id
-                packet.Write<short>(0); // stat points
+                packet.Write<short>((short)this.StatPoints); // stat points
                 packet.Write<short>(0); // always 0
 
                 // item mask

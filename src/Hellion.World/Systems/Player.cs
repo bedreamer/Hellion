@@ -433,12 +433,13 @@ namespace Hellion.World.Systems
             int nextLevel = this.Level + 1;
             this.Experience += experience;
 
-            if (this.Experience > WorldServer.ExpTable[nextLevel].Exp) // Level up!
+            if (this.Experience >= WorldServer.ExpTable[nextLevel].Exp) // Level up!
             {
+                this.Level++;
                 long expTemp = this.Experience - WorldServer.ExpTable[nextLevel].Exp;
 
+                this.SkillPoints += ((this.Level - 1) / 20) + 2;
                 this.StatPoints += (int)WorldServer.ExpTable[nextLevel].Gp;
-                this.Level++;
 
                 if (this.Level == 20)
                 {
