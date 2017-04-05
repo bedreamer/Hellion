@@ -6,6 +6,8 @@ namespace Hellion.World.Structures
     public class Attributes
     {
         private Dictionary<uint, int> attributes;
+        private Dictionary<uint, int> baseAttributes;
+        private Dictionary<uint, int> bonusAttributes;
 
         /// <summary>
         /// Gets or sets the value of an attribute.
@@ -24,6 +26,8 @@ namespace Hellion.World.Structures
         public Attributes()
         {
             this.attributes = new Dictionary<uint, int>();
+            this.baseAttributes = new Dictionary<uint, int>();
+            this.bonusAttributes = new Dictionary<uint, int>();
         }
 
         /// <summary>

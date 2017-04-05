@@ -17,6 +17,8 @@ namespace Hellion.World.Systems
     /// </summary>
     public sealed partial class Player : Mover
     {
+        private long lastHealTime;
+
         /// <summary>
         /// Gets the parent client instance.
         /// </summary>
@@ -225,6 +227,19 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Update the player.
+        /// </summary>
+        public override void Update()
+        {
+            if (this.IsDead)
+                return;
+
+            this.IdleHeal();
+
+            base.Update();
+        }
+
+        /// <summary>
         /// Send packets to every visible players around this player.
         /// </summary>
         /// <param name="packet"></param>
@@ -389,6 +404,33 @@ namespace Hellion.World.Systems
             return defense;
         }
 
+        /// <summary>
+        /// Gets mover's max HP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxHp()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets mover's max MP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxMp()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets mover's max FP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxFp()
+        {
+            return 0;
+        }
+
         private int GetEquipedDefense()
         {
             int min = 0;
@@ -457,8 +499,20 @@ namespace Hellion.World.Systems
             return false;
         }
 
-        private void IncreaseExperience(int experience)
+        private void IdleHeal()
         {
+            if (this.Attributes[DefineAttributes.HP] < this.MaxHp)
+            {
+                if (this.lastHealTime < Time.TimeInSeconds())
+                {
+                    if (!this.IsFighting)
+                    {
+                        var time = this.IsReseting ? 2 : 3;
+                        this.lastHealTime = Time.TimeInSeconds() + time;
+
+                    }
+                }
+            }
         }
     }
 }

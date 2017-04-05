@@ -110,6 +110,89 @@ namespace Hellion.World.Structures
             base.Update();
         }
 
+
+
+        public override void Die()
+        {
+            this.despawnTime = Time.TimeInSeconds() + 5;
+            base.Die();
+        }
+
+        public override void Fight(Mover defender)
+        {
+            if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
+            {
+                Log.Debug("{0} is fighting {1}", this.Name, this.TargetMover.Name);
+                // Reset attack delay
+                this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
+
+                int motion = 29; // TODO: 28+attackType (IA)
+
+                BattleManager.Process(this, defender);
+                this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
+            }
+            else
+            {
+                Log.Debug("{0} following {1}", this.Name, this.TargetMover.Name);
+                this.IsFollowing = true;
+                this.SendFollowTarget(1);
+            }
+
+            base.Fight(defender);
+        }
+
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            return 0;
+        }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            float armor = this.Data.NaturalArmor;
+
+            if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                armor = this.Data.ResistMagic;
+
+            return (int)(armor / 7f + 1f);
+        }
+
+        /// <summary>
+        /// Gets mover's max HP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxHp()
+        {
+            return this.Data.AddHp;
+        }
+
+        /// <summary>
+        /// Gets mover's max MP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxMp()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets mover's max FP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxFp()
+        {
+            return 0;
+        }
+
+
+        public void DropItem()
+        {
+        }
+
+        public void DropGold()
+        {
+
+        }
+
         /// <summary>
         /// Process the monster's moves
         /// </summary>
@@ -145,7 +228,8 @@ namespace Hellion.World.Structures
                 else
                     this.SendFollowTarget(1f);
             }
-            else if (this.TargetMover == null)
+
+            if (this.TargetMover == null)
             {
                 this.SpeedFactor = 1;
                 this.SendSpeed(this.SpeedFactor);
@@ -179,51 +263,6 @@ namespace Hellion.World.Structures
                     this.Attributes[DefineAttributes.MP] = this.Data.AddMp;
                 }
             }
-        }
-
-        public override void Die()
-        {
-            this.despawnTime = Time.TimeInSeconds() + 5;
-            base.Die();
-        }
-
-        public override void Fight(Mover defender)
-        {
-            if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
-            {
-                Log.Debug("{0} is fighting {1}", this.Name, this.TargetMover.Name);
-                // Reset attack delay
-                this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
-
-                int motion = 29; // TODO: 28+attackType (IA)
-                int damages = BattleManager.CalculateMeleeDamages(this, defender);
-
-                //BattleManager.Process(this, defender);
-                this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
-            }
-            else
-            {
-                Log.Debug("{0} following {1}", this.Name, this.TargetMover.Name);
-                this.IsFollowing = true;
-                this.SendFollowTarget(1);
-            }
-
-            base.Fight(defender);
-        }
-
-        public override int GetWeaponAttackDamages(int weaponType)
-        {
-            return 0;
-        }
-
-        public override int GetDefense(Mover attacker, AttackFlags flags)
-        {
-            float armor = this.Data.NaturalArmor;
-
-            if (flags.HasFlag(AttackFlags.AF_MAGIC))
-                armor = this.Data.ResistMagic;
-
-            return (int)(armor / 7f + 1f);
         }
     }
 }

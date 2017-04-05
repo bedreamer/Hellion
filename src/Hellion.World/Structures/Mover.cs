@@ -16,6 +16,7 @@ namespace Hellion.World.Structures
     {
         private long nextMove;
         private long lastMoveTime;
+        private long timeDelta;
 
         /// <summary>
         /// Get or sets the mover level.
@@ -38,6 +39,21 @@ namespace Hellion.World.Structures
         public bool IsReseting { get; set; }
 
         public bool IsMovingWithKeyboard { get; set; }
+
+        public int MaxHp
+        {
+            get { return this.GetMaxHp(); }
+        }
+
+        public int MaxMp
+        {
+            get { return this.GetMaxMp(); }
+        }
+
+        public int MaxFp
+        {
+            get { return this.GetMaxFp(); }
+        }
 
         /// <summary>
         /// Gets the mover speed.
@@ -116,7 +132,6 @@ namespace Hellion.World.Structures
         }
 
 
-        private long timeDelta;
         private void ProcessMoves()
         {
             timeDelta = Time.GetTick() - this.lastMoveTime;
@@ -329,6 +344,10 @@ namespace Hellion.World.Structures
         }
 
         public abstract int GetWeaponAttackDamages(int weaponType);
+
+        protected abstract int GetMaxHp();
+        protected abstract int GetMaxMp();
+        protected abstract int GetMaxFp();
 
         // TODO: Move this packets to an other file.
 

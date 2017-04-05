@@ -73,6 +73,33 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Gets mover's max HP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxHp()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets mover's max MP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxMp()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets mover's max FP.
+        /// </summary>
+        /// <returns></returns>
+        protected override int GetMaxFp()
+        {
+            return 0;
+        }
+
+        /// <summary>
         /// Process the npc oral dialog.
         /// </summary>
         private void SpeakOralText()

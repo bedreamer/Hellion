@@ -138,6 +138,8 @@ namespace Hellion.World.Managers
                     }
 
                     player.SendExperience();
+                    monster.DropItem();
+                    monster.DropGold();
                 }
 
                 if (defender is Player && attacker is Monster)
