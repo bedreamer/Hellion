@@ -58,19 +58,11 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
-        /// Gets the monster max FP.
-        /// </summary>
-        public override int MaxFp
-        {
-            get { return this.Data.AddAbility; }
-        }
-
-        /// <summary>
         /// Gets the monster max MP.
         /// </summary>
         public override int MaxMp
         {
-            get { return this.Data.AddMp; }
+            get { return ((this.Data.Level * 2) + (this.Attributes[DefineAttributes.INT] * 8) + 22); }
         }
 
         /// <summary>

@@ -40,6 +40,26 @@ namespace Hellion.World.Systems
 
         public bool IsMovingWithKeyboard { get; set; }
 
+        public int Strength
+        {
+            get { return this.GetAttribute(DefineAttributes.STR); }
+        }
+
+        public int Stamina
+        {
+            get { return this.GetAttribute(DefineAttributes.STA); }
+        }
+
+        public int Dexterity
+        {
+            get { return this.GetAttribute(DefineAttributes.DEX); }
+        }
+
+        public int Intelligence
+        {
+            get { return this.GetAttribute(DefineAttributes.INT); }
+        }
+
         public virtual int MaxHp
         {
             get { return 0; }
@@ -129,6 +149,7 @@ namespace Hellion.World.Systems
 
         public void RemoveTarget()
         {
+            this.IsFighting = false;
             this.TargetMover = null;
         }
 
@@ -259,11 +280,6 @@ namespace Hellion.World.Systems
         
         private void Walk()
         {
-            float speed = (this.Speed * 100f) * (timeDelta / 1000f);
-            float distanceX = this.DestinationPosition.X - this.Position.X;
-            float distanceZ = this.DestinationPosition.Z - this.Position.Z;
-            float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
-
             if (this.Position.IsInCircle(this.DestinationPosition, 0.1f))
             {
                 this.Position = this.DestinationPosition.Clone();
@@ -271,10 +287,14 @@ namespace Hellion.World.Systems
             }
             else
             {
+                float speed = (this.Speed * 100f) * (timeDelta / 1000f);
+                float distanceX = this.DestinationPosition.X - this.Position.X;
+                float distanceZ = this.DestinationPosition.Z - this.Position.Z;
+                float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
+
                 // Normalize
                 float deltaX = distanceX / distance;
                 float deltaZ = distanceZ / distance;
-
                 float offsetX = deltaX * speed;
                 float offsetZ = deltaZ * speed;
 
@@ -283,8 +303,26 @@ namespace Hellion.World.Systems
                 if (Math.Abs(offsetZ) > Math.Abs(distanceZ))
                     offsetZ = distanceZ;
 
-                this.Position.X += offsetX;
-                this.Position.Z += offsetZ;
+                if (this.IsMovingWithKeyboard)
+                {
+                    float offset = (float)Math.Sqrt(offsetX * offsetX + offsetZ * offsetZ);
+
+                    if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_BMOVE))
+                    {
+                        this.Position.X -= (float)(Math.Sin(this.Angle * (Math.PI / 180)) * offset);
+                        this.Position.Z += (float)(Math.Cos(this.Angle * (Math.PI / 180)) * offset);
+                    }
+                    else if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_FMOVE))
+                    {
+                        this.Position.X += (float)(Math.Sin(this.Angle * (Math.PI / 180)) * offset);
+                        this.Position.Z -= (float)(Math.Cos(this.Angle * (Math.PI / 180)) * offset);
+                    }
+                }
+                else
+                {
+                    this.Position.X += offsetX;
+                    this.Position.Z += offsetZ;
+                }
             }
         }
 
@@ -307,29 +345,17 @@ namespace Hellion.World.Systems
             }
         }
 
-
-        // TODO: clean this mess up! :p
-
-        private void move(float x, float z)
+        private int GetAttribute(DefineAttributes attribute, bool includeBonus = true)
         {
-            if (this.IsMovingWithKeyboard)
-            {
-                if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_BMOVE))
-                {
-                    this.Position.X -= (float)(Math.Sin(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                    this.Position.Z += (float)(Math.Cos(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                }
-                else if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_FMOVE))
-                {
-                    this.Position.X += (float)(Math.Sin(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                    this.Position.Z -= (float)(Math.Cos(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                }
-            }
-            else
-            {
-                this.Position.X += x;
-                this.Position.Z += z;
-            }
+            int value = this.Attributes[attribute];
+
+            if (includeBonus)
+                value += this.BonusAttributes[attribute];
+
+            if (value < 1)
+                value = 1;
+
+            return value;
         }
 
 

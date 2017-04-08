@@ -158,7 +158,10 @@ namespace Hellion.World.Systems
         {
             get
             {
-                return base.MaxFp;
+                int stamina = this.Attributes[DefineAttributes.STA];
+                float factor = this.Class.Data.FactorFpRecovery;
+
+                return (int)((((this.Level * 2.0f) + (stamina * 6.0f)) * factor) + (stamina * factor));
             }
         }
 
@@ -169,7 +172,10 @@ namespace Hellion.World.Systems
         {
             get
             {
-                return base.MaxMp;
+                int intelligence = this.Attributes[DefineAttributes.INT];
+                float factor = this.Class.Data.FactorMpRecovery;
+
+                return (int)(((((this.Level * 2.0f) + (intelligence * 8.0f)) * factor) + 22.0f) + (intelligence * factor));
             }
         }
 
@@ -387,9 +393,6 @@ namespace Hellion.World.Systems
         // formulas from "int CMover::GetWeaponATK( DWORD dwWeaponType )" in official files
         public override int GetWeaponAttackDamages(int weaponType)
         {
-            int strength = this.Attributes[DefineAttributes.STR] + this.BonusAttributes[DefineAttributes.STR];
-            int intelligence = this.Attributes[DefineAttributes.INT] + this.BonusAttributes[DefineAttributes.INT];
-            int dexterity = this.Attributes[DefineAttributes.DEX] + this.BonusAttributes[DefineAttributes.DEX];
             float attribute = 0f;
             float levelFactor = 0f;
             float jobFactor = 1f;
@@ -398,44 +401,44 @@ namespace Hellion.World.Systems
             switch (weaponType)
             {
                 case WeaponType.MELEE_SWD:
-                    attribute = strength - 12;
+                    attribute = this.Strength - 12;
                     levelFactor = this.Level * 1.1f;
                     jobFactor = this.Class.Data.MeleeSword;
                     break;
                 case WeaponType.MELEE_AXE:
-                    attribute = strength - 12;
+                    attribute = this.Strength - 12;
                     levelFactor = this.Level * 1.2f;
                     jobFactor = this.Class.Data.MeleeAxe;
                     break;
                 case WeaponType.MELEE_STAFF:
-                    attribute = strength - 10;
+                    attribute = this.Strength - 10;
                     levelFactor = this.Level * 1.1f;
                     jobFactor = this.Class.Data.MeleeStaff;
                     break;
                 case WeaponType.MELEE_STICK:
-                    attribute = strength - 10;
+                    attribute = this.Strength - 10;
                     levelFactor = this.Level * 1.3f;
                     jobFactor = this.Class.Data.MeleeStick;
                     break;
                 case WeaponType.MELEE_KNUCKLE:
-                    attribute = strength - 10;
+                    attribute = this.Strength - 10;
                     levelFactor = this.Level * 1.2f;
                     jobFactor = this.Class.Data.MeleeKnuckle;
                     break;
                 case WeaponType.MAGIC_WAND:
-                    attribute = intelligence - 10;
+                    attribute = this.Intelligence - 10;
                     levelFactor = this.Level * 1.2f;
                     jobFactor = this.Class.Data.MagicWand;
                     break;
                 case WeaponType.MELEE_YOYO:
-                    attribute = strength - 10;
+                    attribute = this.Strength - 10;
                     levelFactor = this.Level * 1.1f;
                     jobFactor = this.Class.Data.MeleeYoyo;
                     break;
                 case WeaponType.RANGE_BOW:
-                    attribute = (dexterity - 14) * 4f;
+                    attribute = (this.Dexterity - 14) * 4f;
                     levelFactor = this.Level * 1.3f;
-                    jobFactor = (strength * 0.2f) * 0.7f;
+                    jobFactor = (this.Strength * 0.2f) * 0.7f;
                     break;
             }
 
@@ -446,16 +449,13 @@ namespace Hellion.World.Systems
 
         public override int GetDefense(Mover attacker, AttackFlags flags)
         {
-            int intelligence = this.Attributes[DefineAttributes.INT] + this.BonusAttributes[DefineAttributes.INT];
-            int dexterity = this.Attributes[DefineAttributes.DEX] + this.BonusAttributes[DefineAttributes.DEX];
-            int stamina = this.Attributes[DefineAttributes.STA] + this.BonusAttributes[DefineAttributes.STA];
             int defenseAdjust = this.BonusAttributes[DefineAttributes.ADJDEF];
             int defense = 0;
 
             if (attacker is Player)
             {
                 if (flags.HasFlag(AttackFlags.AF_MAGIC))
-                    defense = (int)((intelligence * 9.04f) + (this.Level * 35.98f));
+                    defense = (int)((this.Intelligence * 9.04f) + (this.Level * 35.98f));
                 else
                 {
                     // TODO: Generic hit PVP
@@ -463,7 +463,7 @@ namespace Hellion.World.Systems
             }
             else
             {
-                defense = (int)(((this.GetEquipedDefense() / 4 + defenseAdjust) + (this.Level + (stamina / 2) + dexterity) / 2.8f) - 4 + this.Level * 2);
+                defense = (int)(((this.GetEquipedDefense() / 4 + defenseAdjust) + (this.Level + (this.Stamina / 2) + this.Dexterity) / 2.8f) - 4 + this.Level * 2);
             }
 
             if (defense < 0)
@@ -549,11 +549,35 @@ namespace Hellion.World.Systems
                     if (!this.IsFighting)
                     {
                         Log.Debug("{0} is healing", this.Name);
+                        
+                        this.IncreasePointAttributes(DefineAttributes.HP, FormulasManager.GetHpRecovery(this), this.MaxHp);
+                        this.IncreasePointAttributes(DefineAttributes.MP, FormulasManager.GetMpRecovery(this), this.MaxMp);
+                        this.IncreasePointAttributes(DefineAttributes.FP, FormulasManager.GetFpRecovery(this), this.MaxFp);
+
                         var time = this.IsReseting ? 2 : 3;
                         this.lastHealTime = Time.TimeInSeconds() + time;
-
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Increase attributes value and clamp it at the max.
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="value"></param>
+        /// <param name="max"></param>
+        private void IncreasePointAttributes(DefineAttributes attribute, int value, int max)
+        {
+            int newValue = this.Attributes[attribute] + value;
+
+            if (newValue > max)
+                newValue = max;
+
+            if (this.Attributes[attribute] != newValue)
+            {
+                this.Attributes[attribute] = newValue;
+                this.SendUpdateDestParam(attribute, newValue);
             }
         }
     }
