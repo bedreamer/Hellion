@@ -157,13 +157,13 @@ namespace Hellion.World.Systems
             this.Slot = dbCharacter.Slot;
             this.Level = dbCharacter.Level;
             this.Authority = this.Client.CurrentUser.Authority;
-            this.Attributes[DefineAttributes.STR] = dbCharacter.Strength;
-            this.Attributes[DefineAttributes.STA] = dbCharacter.Stamina;
-            this.Attributes[DefineAttributes.DEX] = dbCharacter.Dexterity;
-            this.Attributes[DefineAttributes.INT] = dbCharacter.Intelligence;
-            this.Attributes[DefineAttributes.HP] = dbCharacter.Hp;
-            this.Attributes[DefineAttributes.MP] = dbCharacter.Mp;
-            this.Attributes[DefineAttributes.FP] = dbCharacter.Fp;
+            this.Attributes.Base[DefineAttributes.STR] = dbCharacter.Strength;
+            this.Attributes.Base[DefineAttributes.STA] = dbCharacter.Stamina;
+            this.Attributes.Base[DefineAttributes.DEX] = dbCharacter.Dexterity;
+            this.Attributes.Base[DefineAttributes.INT] = dbCharacter.Intelligence;
+            this.Attributes.Base[DefineAttributes.HP] = dbCharacter.Hp;
+            this.Attributes.Base[DefineAttributes.MP] = dbCharacter.Mp;
+            this.Attributes.Base[DefineAttributes.FP] = dbCharacter.Fp;
             this.Experience = dbCharacter.Experience;
             this.SkinSetId = dbCharacter.SkinSetId;
             this.HairId = dbCharacter.HairId;
@@ -349,6 +349,9 @@ namespace Hellion.World.Systems
         // formulas from "int CMover::GetWeaponATK( DWORD dwWeaponType )" in official files
         public override int GetWeaponAttackDamages(int weaponType)
         {
+            int strength = this.Attributes[DefineAttributes.STR] + this.BonusAttributes[DefineAttributes.STR];
+            int intelligence = this.Attributes[DefineAttributes.INT] + this.BonusAttributes[DefineAttributes.INT];
+            int dexterity = this.Attributes[DefineAttributes.DEX] + this.BonusAttributes[DefineAttributes.DEX];
             float attribute = 0f;
             float levelFactor = 0f;
             float jobFactor = 1f;
@@ -357,21 +360,45 @@ namespace Hellion.World.Systems
             switch (weaponType)
             {
                 case WeaponType.MELEE_SWD:
-                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    attribute = strength - 12;
                     levelFactor = this.Level * 1.1f;
                     jobFactor = this.Class.Data.MeleeSword;
                     break;
                 case WeaponType.MELEE_AXE:
-                    attribute = this.Attributes[DefineAttributes.STR] - 12;
+                    attribute = strength - 12;
                     levelFactor = this.Level * 1.2f;
                     jobFactor = this.Class.Data.MeleeAxe;
                     break;
-                case WeaponType.MELEE_STAFF: break;
-                case WeaponType.MELEE_STICK: break;
-                case WeaponType.MELEE_KNUCKLE: break;
-                case WeaponType.MAGIC_WAND: break;
-                case WeaponType.MELEE_YOYO: break;
-                case WeaponType.RANGE_BOW: break;
+                case WeaponType.MELEE_STAFF:
+                    attribute = strength - 10;
+                    levelFactor = this.Level * 1.1f;
+                    jobFactor = this.Class.Data.MeleeStaff;
+                    break;
+                case WeaponType.MELEE_STICK:
+                    attribute = strength - 10;
+                    levelFactor = this.Level * 1.3f;
+                    jobFactor = this.Class.Data.MeleeStick;
+                    break;
+                case WeaponType.MELEE_KNUCKLE:
+                    attribute = strength - 10;
+                    levelFactor = this.Level * 1.2f;
+                    jobFactor = this.Class.Data.MeleeKnuckle;
+                    break;
+                case WeaponType.MAGIC_WAND:
+                    attribute = intelligence - 10;
+                    levelFactor = this.Level * 1.2f;
+                    jobFactor = this.Class.Data.MagicWand;
+                    break;
+                case WeaponType.MELEE_YOYO:
+                    attribute = strength - 10;
+                    levelFactor = this.Level * 1.1f;
+                    jobFactor = this.Class.Data.MeleeYoyo;
+                    break;
+                case WeaponType.RANGE_BOW:
+                    attribute = (dexterity - 14) * 4f;
+                    levelFactor = this.Level * 1.3f;
+                    jobFactor = (strength * 0.2f) * 0.7f;
+                    break;
             }
 
             damages = (int)(attribute * jobFactor + levelFactor);
@@ -381,12 +408,16 @@ namespace Hellion.World.Systems
 
         public override int GetDefense(Mover attacker, AttackFlags flags)
         {
+            int intelligence = this.Attributes[DefineAttributes.INT] + this.BonusAttributes[DefineAttributes.INT];
+            int dexterity = this.Attributes[DefineAttributes.DEX] + this.BonusAttributes[DefineAttributes.DEX];
+            int stamina = this.Attributes[DefineAttributes.STA] + this.BonusAttributes[DefineAttributes.STA];
+            int defenseAdjust = this.BonusAttributes[DefineAttributes.ADJDEF];
             int defense = 0;
 
             if (attacker is Player)
             {
                 if (flags.HasFlag(AttackFlags.AF_MAGIC))
-                    defense = (int)((this.Attributes[DefineAttributes.INT] * 9.04f) + (this.Level * 35.98f));
+                    defense = (int)((intelligence * 9.04f) + (this.Level * 35.98f));
                 else
                 {
                     // TODO: Generic hit PVP
@@ -394,8 +425,7 @@ namespace Hellion.World.Systems
             }
             else
             {
-                defense = (int)(((this.GetEquipedDefense() / 4 /*+ GetParam(DST_ADJDEF, 0)*/) +
-                    (this.Level + (this.Attributes[DefineAttributes.STA] / 2) + this.Attributes[DefineAttributes.DEX]) / 2.8f) - 4 + this.Level * 2);
+                defense = (int)(((this.GetEquipedDefense() / 4 + defenseAdjust) + (this.Level + (stamina / 2) + dexterity) / 2.8f) - 4 + this.Level * 2);
             }
 
             if (defense < 0)
@@ -410,7 +440,12 @@ namespace Hellion.World.Systems
         /// <returns></returns>
         protected override int GetMaxHp()
         {
-            return 0;
+            int stamina = this.Attributes[DefineAttributes.STA];
+
+            float a = (this.Class.Data.FactorMaxHp * this.Level) / 2.0f;
+            float b = a * ((this.Level + 1.0f) / 4.0f) * (1.0f + stamina / 50.0f) + (stamina * 10.0f);
+
+            return (int)(b + 80f);
         }
 
         /// <summary>
@@ -507,6 +542,7 @@ namespace Hellion.World.Systems
                 {
                     if (!this.IsFighting)
                     {
+                        Log.Debug("{0} is healing", this.Name);
                         var time = this.IsReseting ? 2 : 3;
                         this.lastHealTime = Time.TimeInSeconds() + time;
 

@@ -95,6 +95,11 @@ namespace Hellion.World.Structures
         /// </summary>
         public Attributes Attributes { get; private set; }
 
+        /// <summary>
+        /// Gets the mover's bonus attributes.
+        /// </summary>
+        public Attributes BonusAttributes { get; private set; }
+
         public override WorldObjectType Type
         {
             get { return WorldObjectType.Mover; }
@@ -113,6 +118,7 @@ namespace Hellion.World.Structures
             this.MovingFlags = ObjectState.OBJSTA_STAND;
 
             this.Attributes = new Attributes();
+            this.BonusAttributes = new Attributes();
         }
 
         public void Target(Mover mover)
