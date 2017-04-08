@@ -3,9 +3,9 @@ using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures;
 using Hellion.World.Managers;
-using Hellion.World.Systems;
+using Hellion.World.Structures;
 
-namespace Hellion.World.Structures
+namespace Hellion.World.Systems
 {
     public class Monster : Mover
     {
