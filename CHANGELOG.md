@@ -1,12 +1,17 @@
 ## Hellion ChangeLog
 
+### Update #17
+
+...
+
 ### Update #16
 
-Date: 01/04/2017
+Date: 08/04/2017
 
 - World
   - Add `Hair Designer` NPC [PR #49](https://github.com/Eastrall/Hellion/pull/49)
   - Add `Makeup Artist` NPC [PR #50](https://github.com/Eastrall/Hellion/pull/50)
+  - Begin of recovery and max formulas (HP, MP, FP)
 
 ### Update #15
 
