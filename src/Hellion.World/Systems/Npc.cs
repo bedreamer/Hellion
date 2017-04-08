@@ -6,6 +6,7 @@ using Hellion.World.Structures;
 using System.Collections.Generic;
 using System.Linq;
 using Hellion.Core.Structures;
+using System;
 
 namespace Hellion.World.Systems
 {
@@ -63,38 +64,19 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Process a NPC fight.
+        /// </summary>
+        /// <param name="defender"></param>
+        public override void Fight(Mover defender)
+        {
+        }
+
+        /// <summary>
         /// Get the weapon attack damages.
         /// </summary>
         /// <param name="weaponType"></param>
         /// <returns></returns>
         public override int GetWeaponAttackDamages(int weaponType)
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Gets mover's max HP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxHp()
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Gets mover's max MP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxMp()
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Gets mover's max FP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxFp()
         {
             return 0;
         }

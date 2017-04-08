@@ -1,15 +1,9 @@
-﻿using Ether.Network;
-using Hellion.Core;
-using Hellion.Core.Data.Headers;
+﻿using Hellion.Core.Data.Headers;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures;
 using Hellion.World.Managers;
 using Hellion.World.Systems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hellion.World.Structures
 {
@@ -53,6 +47,30 @@ namespace Hellion.World.Structures
         public override float FlightSpeed
         {
             get { return this.Speed; }
+        }
+
+        /// <summary>
+        /// Gets the monster max HP.
+        /// </summary>
+        public override int MaxHp
+        {
+            get { return this.Data.AddHp; }
+        }
+
+        /// <summary>
+        /// Gets the monster max FP.
+        /// </summary>
+        public override int MaxFp
+        {
+            get { return this.Data.AddAbility; }
+        }
+
+        /// <summary>
+        /// Gets the monster max MP.
+        /// </summary>
+        public override int MaxMp
+        {
+            get { return this.Data.AddMp; }
         }
 
         /// <summary>
@@ -110,8 +128,7 @@ namespace Hellion.World.Structures
             base.Update();
         }
 
-
-
+        
         public override void Die()
         {
             this.despawnTime = Time.TimeInSeconds() + 5;
@@ -137,8 +154,6 @@ namespace Hellion.World.Structures
                 this.IsFollowing = true;
                 this.SendFollowTarget(1);
             }
-
-            base.Fight(defender);
         }
 
         public override int GetWeaponAttackDamages(int weaponType)
@@ -156,34 +171,6 @@ namespace Hellion.World.Structures
             return (int)(armor / 7f + 1f);
         }
 
-        /// <summary>
-        /// Gets mover's max HP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxHp()
-        {
-            return this.Data.AddHp;
-        }
-
-        /// <summary>
-        /// Gets mover's max MP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxMp()
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Gets mover's max FP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxFp()
-        {
-            return 0;
-        }
-
-
         public void DropItem()
         {
         }
@@ -194,7 +181,7 @@ namespace Hellion.World.Structures
         }
 
         /// <summary>
-        /// Process the monster's moves
+        /// Process the monster's moves.
         /// </summary>
         private void ProcessMoves()
         {
@@ -210,6 +197,9 @@ namespace Hellion.World.Structures
             }
         }
 
+        /// <summary>
+        /// Process the monster's fight.
+        /// </summary>
         private void ProcessFight()
         {
             if (this.IsFighting && this.TargetMover != null)
@@ -242,6 +232,9 @@ namespace Hellion.World.Structures
             }
         }
 
+        /// <summary>
+        /// Check the monster respawn.
+        /// </summary>
         private void CheckRespawn()
         {
             if (this.IsSpawned)

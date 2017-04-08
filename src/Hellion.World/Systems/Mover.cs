@@ -7,12 +7,12 @@ using Hellion.Core.Structures;
 using Hellion.Core.IO;
 using Hellion.Core.Network;
 using Hellion.Core.Data.Headers;
-using Hellion.World.Systems;
 using Hellion.Core.Helpers;
+using Hellion.World.Structures;
 
-namespace Hellion.World.Structures
+namespace Hellion.World.Systems
 {
-    public abstract class Mover : WorldObject
+    public abstract partial class Mover : WorldObject
     {
         private long nextMove;
         private long lastMoveTime;
@@ -40,19 +40,19 @@ namespace Hellion.World.Structures
 
         public bool IsMovingWithKeyboard { get; set; }
 
-        public int MaxHp
+        public virtual int MaxHp
         {
-            get { return this.GetMaxHp(); }
+            get { return 0; }
         }
 
-        public int MaxMp
+        public virtual int MaxMp
         {
-            get { return this.GetMaxMp(); }
+            get { return 0; }
         }
 
-        public int MaxFp
+        public virtual int MaxFp
         {
-            get { return this.GetMaxFp(); }
+            get { return 0; }
         }
 
         /// <summary>
@@ -332,7 +332,6 @@ namespace Hellion.World.Structures
             }
         }
 
-        public virtual void Fight(Mover defender) { }
 
         public virtual void OnArrival() { }
 
@@ -349,146 +348,7 @@ namespace Hellion.World.Structures
             return 0;
         }
 
+        public abstract void Fight(Mover defender);
         public abstract int GetWeaponAttackDamages(int weaponType);
-
-        protected abstract int GetMaxHp();
-        protected abstract int GetMaxMp();
-        protected abstract int GetMaxFp();
-
-        // TODO: Move this packets to an other file.
-
-        internal void SendMoverMoving()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.DESTPOS);
-                packet.Write(this.DestinationPosition.X);
-                packet.Write(this.DestinationPosition.Y);
-                packet.Write(this.DestinationPosition.Z);
-                packet.Write<byte>(1);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendMoverPosition()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETPOS);
-                packet.Write(this.Position.X);
-                packet.Write(this.Position.Y);
-                packet.Write(this.Position.Z);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        public void SendMoverAction(int motionId)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOTION);
-                packet.Write(motionId);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendFollowTarget(float distance)
-        {
-            if (this.TargetMover == null)
-                return;
-
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOVERSETDESTOBJ);
-                packet.Write(this.TargetMover.ObjectId);
-                packet.Write(distance);
-
-                base.SendToVisible(packet);
-            }
-        }
-
-        private void SendNormalChat(string message, Player toPlayer = null)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.CHAT);
-                packet.Write(message);
-
-                if (toPlayer == null)
-                    this.SendToVisible(packet);
-                else
-                    toPlayer.Send(packet);
-            }
-        }
-
-        internal void SendNormalChat(string message)
-        {
-            this.SendNormalChat(message, null);
-        }
-
-        internal void SendNormalChatTo(string message, Player player)
-        {
-            this.SendNormalChat(message, player);
-        }
-
-        internal void SendMeleeAttack(int motion, int targetId)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MELEE_ATTACK);
-                packet.Write(motion);
-                packet.Write(targetId);
-                packet.Write(0);
-                packet.Write(0x10000);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendSpeed(float speedFactor)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SET_SPEED_FACTOR);
-                packet.Write(speedFactor);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendDamagesTo(Mover defender, int damages, AttackFlags flags, Vector3 position = null, float angle = 0f)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(defender.ObjectId, SnapshotType.DAMAGE);
-                packet.Write(this.ObjectId);
-                packet.Write(damages);
-                packet.Write((int)flags);
-
-                if (flags.HasFlag(AttackFlags.AF_FLYING))
-                {
-                    packet.Write(position.X);
-                    packet.Write(position.Y);
-                    packet.Write(position.Z);
-                    packet.Write(angle * 10f);
-                }
-
-                this.SendToVisible(packet); 
-            }
-        }
-
-        internal void SendDeath()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOVERDEATH);
-
-                packet.Write<long>(0);
-                this.SendToVisible(packet);
-            }
-        }
     }
 }

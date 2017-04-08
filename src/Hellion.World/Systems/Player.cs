@@ -136,6 +136,44 @@ namespace Hellion.World.Systems
         }
 
         /// <summary>
+        /// Gets the player max HP value.
+        /// </summary>
+        public override int MaxHp
+        {
+            get
+            {
+                int stamina = this.Attributes[DefineAttributes.STA];
+
+                float a = (this.Class.Data.FactorMaxHp * this.Level) / 2.0f;
+                float b = a * ((this.Level + 1.0f) / 4.0f) * (1.0f + stamina / 50.0f) + (stamina * 10.0f);
+
+                return (int)(b + 80f);
+            }
+        }
+
+        /// <summary>
+        /// Gets the player max FP value.
+        /// </summary>
+        public override int MaxFp
+        {
+            get
+            {
+                return base.MaxFp;
+            }
+        }
+
+        /// <summary>
+        /// Gets the player max MP value.
+        /// </summary>
+        public override int MaxMp
+        {
+            get
+            {
+                return base.MaxMp;
+            }
+        }
+
+        /// <summary>
         /// Creates a new Player based on a <see cref="DbCharacter"/> stored in database.
         /// </summary>
         /// <param name="parentClient">Parent client instance</param>
@@ -432,38 +470,6 @@ namespace Hellion.World.Systems
                 defense = 0;
 
             return defense;
-        }
-
-        /// <summary>
-        /// Gets mover's max HP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxHp()
-        {
-            int stamina = this.Attributes[DefineAttributes.STA];
-
-            float a = (this.Class.Data.FactorMaxHp * this.Level) / 2.0f;
-            float b = a * ((this.Level + 1.0f) / 4.0f) * (1.0f + stamina / 50.0f) + (stamina * 10.0f);
-
-            return (int)(b + 80f);
-        }
-
-        /// <summary>
-        /// Gets mover's max MP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxMp()
-        {
-            return 0;
-        }
-
-        /// <summary>
-        /// Gets mover's max FP.
-        /// </summary>
-        /// <returns></returns>
-        protected override int GetMaxFp()
-        {
-            return 0;
         }
 
         private int GetEquipedDefense()
