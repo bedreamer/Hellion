@@ -79,6 +79,9 @@ namespace Hellion.World.Managers
 
         public static void Process(Mover attacker, Mover defender)
         {
+            attacker.IsFighting = true;
+            defender.IsFighting = true;
+
             AttackFlags flags = GetAttackFlags(attacker, defender);
             int damages = CalculateMeleeDamages(attacker, defender);
 
@@ -124,6 +127,9 @@ namespace Hellion.World.Managers
 
             if (defender.IsDead)
             {
+                attacker.IsFighting = false;
+                defender.IsFighting = false;
+
                 if (defender is Monster && attacker is Player)
                 {
                     var monster = defender as Monster;
@@ -138,6 +144,8 @@ namespace Hellion.World.Managers
                     }
 
                     player.SendExperience();
+                    monster.DropItem();
+                    monster.DropGold();
                 }
 
                 if (defender is Player && attacker is Monster)

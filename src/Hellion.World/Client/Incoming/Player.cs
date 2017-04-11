@@ -333,5 +333,24 @@ namespace Hellion.World.Client
             this.Player.Fight(target);
             this.Player.SendMeleeAttack(motion, targetId);
         }
+
+        [FFIncomingPacket(PacketType.SETTARGET)]
+        public void OnSetTarget(NetPacketBase packet)
+        {
+            var objectId = packet.Read<int>();
+            var state = packet.Read<byte>();
+            
+            if (state == 2)
+            {
+                var targetMover = this.Player.GetSpawnedObjectById<Mover>(objectId);
+
+                if (targetMover != null)
+                    this.Player.Target(targetMover);
+                else
+                    Log.Warning("Target is not a mover");
+            }
+            else
+                this.Player.RemoveTarget();
+        }
     }
 }

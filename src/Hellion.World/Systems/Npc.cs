@@ -6,6 +6,7 @@ using Hellion.World.Structures;
 using System.Collections.Generic;
 using System.Linq;
 using Hellion.Core.Structures;
+using System;
 
 namespace Hellion.World.Systems
 {
@@ -60,6 +61,14 @@ namespace Hellion.World.Systems
             this.SpeakOralText();
 
             base.Update();
+        }
+
+        /// <summary>
+        /// Process a NPC fight.
+        /// </summary>
+        /// <param name="defender"></param>
+        public override void Fight(Mover defender)
+        {
         }
 
         /// <summary>

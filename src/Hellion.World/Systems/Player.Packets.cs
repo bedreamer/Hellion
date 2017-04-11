@@ -18,7 +18,6 @@ namespace Hellion.World.Systems
                 packet.StartNewMergedPacket(this.ObjectId, SnapshotType.ENVIRONMENTALL, 0x0000FF00);
                 packet.Write(0); // Get weather by season
 
-
                 packet.StartNewMergedPacket(this.ObjectId, SnapshotType.WORLD_READINFO);
                 packet.Write(this.MapId);
                 packet.Write(this.Position.X);
@@ -111,7 +110,7 @@ namespace Hellion.World.Systems
                 packet.Write(this.Gold);
                 packet.Write(this.Experience);
                 packet.Write(0); // skill level
-                packet.Write(0); // skill points
+                packet.Write(this.SkillPoints); // skill points
                 packet.Write<long>(0); // death exp
                 packet.Write(0); // death level
 
@@ -129,7 +128,7 @@ namespace Hellion.World.Systems
                 packet.Write<byte>(0);
 
                 packet.Write(42); // murderer id
-                packet.Write<short>(0); // stat points
+                packet.Write<short>((short)this.StatPoints); // stat points
                 packet.Write<short>(0); // always 0
 
                 // item mask
@@ -661,6 +660,44 @@ namespace Hellion.World.Systems
                 packet.Write<long>(0);
 
                 this.Send(packet);
+            }
+        }
+        
+        internal void SendChangeFace(int faceId)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(-1, SnapshotType.CHANGEFACE);
+                packet.Write(this.Id);
+                packet.Write(faceId);
+
+                this.SendToVisible(packet);
+            }
+        }
+
+        internal void SendUpdateDestParam(DefineAttributes attr, int newValue)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETPOINTPARAM);
+                packet.Write((int)attr);
+                packet.Write(newValue);
+
+                this.SendToVisible(packet);
+            }
+        }
+
+        internal void SendChangeHair(byte hairId, byte red, byte green, byte blue)
+        {
+            using (var packet = new FFPacket())
+            {
+                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SET_HAIR);
+                packet.Write(hairId);
+                packet.Write(red);
+                packet.Write(green);
+                packet.Write(blue);
+
+                this.SendToVisible(packet);
             }
         }
     }

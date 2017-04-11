@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Hellion WorldServer</Description>
+    <AssemblyTitle>Hellion.World</AssemblyTitle>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>Hellion.World</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>Hellion.World</PackageId>
+    <RuntimeIdentifiers>win10-x64;win7-x64;osx.10.10-x64;ubuntu.14.04-x64;ubuntu.14.10-x64;ubuntu.15.04-x64;ubuntu.15.10-x64;ubuntu.16.04-x64;ubuntu.16.10-x64;centos.7-x64;debian.8-x64;fedora.23-x64;fedora.24-x64</RuntimeIdentifiers>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hellion.Core\Hellion.Core.csproj" />
+    <ProjectReference Include="..\Hellion.Database\Hellion.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ether.Network" Version="1.1.7" />
+  </ItemGroup>
+
+</Project>

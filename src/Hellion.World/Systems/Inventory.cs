@@ -287,7 +287,8 @@ namespace Hellion.World.Systems
             // Check deleted items
             foreach (var dbItem in dbInventory)
             {
-                if (this.GetItemBySlot(dbItem.ItemSlot) == null)
+                var item = this.GetItemBySlot(dbItem.ItemSlot);
+                if (item != null && item.Id == -1)
                     DatabaseService.Items.Delete(dbItem);
             }
 

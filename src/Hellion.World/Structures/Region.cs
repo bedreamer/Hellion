@@ -7,24 +7,28 @@ namespace Hellion.World.Structures
     {
         public Vector3 Middle { get; protected set; }
 
-        public Vector3 NorthEast { get; protected set; }
+        public Vector3 NorthWest { get; protected set; }
 
-        public Vector3 SouthWest { get; protected set; }
+        public Vector3 SouthEast { get; protected set; }
 
-        public Region(Vector3 middle, Vector3 northEast, Vector3 southWest)
+        public float Width { get; private set; }
+
+        public float Length { get; private set; }
+
+        public Region(Vector3 middle, Vector3 northWest, Vector3 southEast)
         {
             this.Middle = middle;
-            this.NorthEast = northEast;
-            this.SouthWest = southWest;
+            this.NorthWest = northWest;
+            this.SouthEast = southEast;
         }
 
         public Vector3 GetRandomPosition()
         {
             var position = new Vector3();
             
-            position.X = RandomHelper.FloatRandom(this.SouthWest.X, this.NorthEast.X);
+            position.X = RandomHelper.FloatRandom(this.SouthEast.X, this.NorthWest.X);
             position.Y = this.Middle.Y;
-            position.Z = RandomHelper.FloatRandom(this.SouthWest.Z, this.NorthEast.Z);
+            position.Z = RandomHelper.FloatRandom(this.SouthEast.Z, this.NorthWest.Z);
 
             return position;
         }

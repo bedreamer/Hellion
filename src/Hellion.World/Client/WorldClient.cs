@@ -68,7 +68,7 @@ namespace Hellion.World.Client
         {
             using (var packet = new FFPacket())
             {
-                packet.WriteHeader(PacketType.WELCOME);
+                packet.Write(0);
                 packet.Write((int)this.sessionId);
 
                 this.Send(packet);

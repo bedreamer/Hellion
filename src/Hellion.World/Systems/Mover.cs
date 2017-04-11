@@ -7,15 +7,16 @@ using Hellion.Core.Structures;
 using Hellion.Core.IO;
 using Hellion.Core.Network;
 using Hellion.Core.Data.Headers;
-using Hellion.World.Systems;
 using Hellion.Core.Helpers;
+using Hellion.World.Structures;
 
-namespace Hellion.World.Structures
+namespace Hellion.World.Systems
 {
-    public abstract class Mover : WorldObject
+    public abstract partial class Mover : WorldObject
     {
         private long nextMove;
         private long lastMoveTime;
+        private long timeDelta;
 
         /// <summary>
         /// Get or sets the mover level.
@@ -38,6 +39,41 @@ namespace Hellion.World.Structures
         public bool IsReseting { get; set; }
 
         public bool IsMovingWithKeyboard { get; set; }
+
+        public int Strength
+        {
+            get { return this.GetAttribute(DefineAttributes.STR); }
+        }
+
+        public int Stamina
+        {
+            get { return this.GetAttribute(DefineAttributes.STA); }
+        }
+
+        public int Dexterity
+        {
+            get { return this.GetAttribute(DefineAttributes.DEX); }
+        }
+
+        public int Intelligence
+        {
+            get { return this.GetAttribute(DefineAttributes.INT); }
+        }
+
+        public virtual int MaxHp
+        {
+            get { return 0; }
+        }
+
+        public virtual int MaxMp
+        {
+            get { return 0; }
+        }
+
+        public virtual int MaxFp
+        {
+            get { return 0; }
+        }
 
         /// <summary>
         /// Gets the mover speed.
@@ -79,6 +115,11 @@ namespace Hellion.World.Structures
         /// </summary>
         public Attributes Attributes { get; private set; }
 
+        /// <summary>
+        /// Gets the mover's bonus attributes.
+        /// </summary>
+        public Attributes BonusAttributes { get; private set; }
+
         public override WorldObjectType Type
         {
             get { return WorldObjectType.Mover; }
@@ -97,6 +138,7 @@ namespace Hellion.World.Structures
             this.MovingFlags = ObjectState.OBJSTA_STAND;
 
             this.Attributes = new Attributes();
+            this.BonusAttributes = new Attributes();
         }
 
         public void Target(Mover mover)
@@ -107,6 +149,7 @@ namespace Hellion.World.Structures
 
         public void RemoveTarget()
         {
+            this.IsFighting = false;
             this.TargetMover = null;
         }
 
@@ -116,7 +159,6 @@ namespace Hellion.World.Structures
         }
 
 
-        private long timeDelta;
         private void ProcessMoves()
         {
             timeDelta = Time.GetTick() - this.lastMoveTime;
@@ -238,11 +280,6 @@ namespace Hellion.World.Structures
         
         private void Walk()
         {
-            float speed = (this.Speed * 100f) * (timeDelta / 1000f);
-            float distanceX = this.DestinationPosition.X - this.Position.X;
-            float distanceZ = this.DestinationPosition.Z - this.Position.Z;
-            float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
-
             if (this.Position.IsInCircle(this.DestinationPosition, 0.1f))
             {
                 this.Position = this.DestinationPosition.Clone();
@@ -250,10 +287,14 @@ namespace Hellion.World.Structures
             }
             else
             {
+                float speed = (this.Speed * 100f) * (timeDelta / 1000f);
+                float distanceX = this.DestinationPosition.X - this.Position.X;
+                float distanceZ = this.DestinationPosition.Z - this.Position.Z;
+                float distance = (float)Math.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
+
                 // Normalize
                 float deltaX = distanceX / distance;
                 float deltaZ = distanceZ / distance;
-
                 float offsetX = deltaX * speed;
                 float offsetZ = deltaZ * speed;
 
@@ -262,8 +303,26 @@ namespace Hellion.World.Structures
                 if (Math.Abs(offsetZ) > Math.Abs(distanceZ))
                     offsetZ = distanceZ;
 
-                this.Position.X += offsetX;
-                this.Position.Z += offsetZ;
+                if (this.IsMovingWithKeyboard)
+                {
+                    float offset = (float)Math.Sqrt(offsetX * offsetX + offsetZ * offsetZ);
+
+                    if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_BMOVE))
+                    {
+                        this.Position.X -= (float)(Math.Sin(this.Angle * (Math.PI / 180)) * offset);
+                        this.Position.Z += (float)(Math.Cos(this.Angle * (Math.PI / 180)) * offset);
+                    }
+                    else if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_FMOVE))
+                    {
+                        this.Position.X += (float)(Math.Sin(this.Angle * (Math.PI / 180)) * offset);
+                        this.Position.Z -= (float)(Math.Cos(this.Angle * (Math.PI / 180)) * offset);
+                    }
+                }
+                else
+                {
+                    this.Position.X += offsetX;
+                    this.Position.Z += offsetZ;
+                }
             }
         }
 
@@ -286,32 +345,19 @@ namespace Hellion.World.Structures
             }
         }
 
-
-        // TODO: clean this mess up! :p
-
-        private void move(float x, float z)
+        private int GetAttribute(DefineAttributes attribute, bool includeBonus = true)
         {
-            if (this.IsMovingWithKeyboard)
-            {
-                if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_BMOVE))
-                {
-                    this.Position.X -= (float)(Math.Sin(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                    this.Position.Z += (float)(Math.Cos(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                }
-                else if (this.MovingFlags.HasFlag(ObjectState.OBJSTA_FMOVE))
-                {
-                    this.Position.X += (float)(Math.Sin(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                    this.Position.Z -= (float)(Math.Cos(this.Angle * (Math.PI / 180)) * Math.Sqrt(x * x + z * z));
-                }
-            }
-            else
-            {
-                this.Position.X += x;
-                this.Position.Z += z;
-            }
+            int value = this.Attributes[attribute];
+
+            if (includeBonus)
+                value += this.BonusAttributes[attribute];
+
+            if (value < 1)
+                value = 1;
+
+            return value;
         }
 
-        public virtual void Fight(Mover defender) { }
 
         public virtual void OnArrival() { }
 
@@ -328,142 +374,7 @@ namespace Hellion.World.Structures
             return 0;
         }
 
+        public abstract void Fight(Mover defender);
         public abstract int GetWeaponAttackDamages(int weaponType);
-
-        // TODO: Move this packets to an other file.
-
-        internal void SendMoverMoving()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.DESTPOS);
-                packet.Write(this.DestinationPosition.X);
-                packet.Write(this.DestinationPosition.Y);
-                packet.Write(this.DestinationPosition.Z);
-                packet.Write<byte>(1);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendMoverPosition()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SETPOS);
-                packet.Write(this.Position.X);
-                packet.Write(this.Position.Y);
-                packet.Write(this.Position.Z);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        public void SendMoverAction(int motionId)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOTION);
-                packet.Write(motionId);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendFollowTarget(float distance)
-        {
-            if (this.TargetMover == null)
-                return;
-
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOVERSETDESTOBJ);
-                packet.Write(this.TargetMover.ObjectId);
-                packet.Write(distance);
-
-                base.SendToVisible(packet);
-            }
-        }
-
-        private void SendNormalChat(string message, Player toPlayer = null)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.CHAT);
-                packet.Write(message);
-
-                if (toPlayer == null)
-                    this.SendToVisible(packet);
-                else
-                    toPlayer.Send(packet);
-            }
-        }
-
-        internal void SendNormalChat(string message)
-        {
-            this.SendNormalChat(message, null);
-        }
-
-        internal void SendNormalChatTo(string message, Player player)
-        {
-            this.SendNormalChat(message, player);
-        }
-
-        internal void SendMeleeAttack(int motion, int targetId)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MELEE_ATTACK);
-                packet.Write(motion);
-                packet.Write(targetId);
-                packet.Write(0);
-                packet.Write(0x10000);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendSpeed(float speedFactor)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.SET_SPEED_FACTOR);
-                packet.Write(speedFactor);
-
-                this.SendToVisible(packet);
-            }
-        }
-
-        internal void SendDamagesTo(Mover defender, int damages, AttackFlags flags, Vector3 position = null, float angle = 0f)
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(defender.ObjectId, SnapshotType.DAMAGE);
-                packet.Write(this.ObjectId);
-                packet.Write(damages);
-                packet.Write((int)flags);
-
-                if (flags.HasFlag(AttackFlags.AF_FLYING))
-                {
-                    packet.Write(position.X);
-                    packet.Write(position.Y);
-                    packet.Write(position.Z);
-                    packet.Write(angle * 10f);
-                }
-
-                this.SendToVisible(packet); 
-            }
-        }
-
-        internal void SendDeath()
-        {
-            using (var packet = new FFPacket())
-            {
-                packet.StartNewMergedPacket(this.ObjectId, SnapshotType.MOVERDEATH);
-
-                packet.Write<long>(0);
-                this.SendToVisible(packet);
-            }
-        }
     }
 }

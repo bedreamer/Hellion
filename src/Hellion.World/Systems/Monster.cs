@@ -1,17 +1,11 @@
-﻿using Ether.Network;
-using Hellion.Core;
-using Hellion.Core.Data.Headers;
+﻿using Hellion.Core.Data.Headers;
 using Hellion.Core.Helpers;
 using Hellion.Core.IO;
 using Hellion.Core.Structures;
 using Hellion.World.Managers;
-using Hellion.World.Systems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Hellion.World.Structures;
 
-namespace Hellion.World.Structures
+namespace Hellion.World.Systems
 {
     public class Monster : Mover
     {
@@ -53,6 +47,22 @@ namespace Hellion.World.Structures
         public override float FlightSpeed
         {
             get { return this.Speed; }
+        }
+
+        /// <summary>
+        /// Gets the monster max HP.
+        /// </summary>
+        public override int MaxHp
+        {
+            get { return this.Data.AddHp; }
+        }
+
+        /// <summary>
+        /// Gets the monster max MP.
+        /// </summary>
+        public override int MaxMp
+        {
+            get { return ((this.Data.Level * 2) + (this.Attributes[DefineAttributes.INT] * 8) + 22); }
         }
 
         /// <summary>
@@ -110,8 +120,60 @@ namespace Hellion.World.Structures
             base.Update();
         }
 
+        
+        public override void Die()
+        {
+            this.despawnTime = Time.TimeInSeconds() + 5;
+            base.Die();
+        }
+
+        public override void Fight(Mover defender)
+        {
+            if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
+            {
+                Log.Debug("{0} is fighting {1}", this.Name, this.TargetMover.Name);
+                // Reset attack delay
+                this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
+
+                int motion = 29; // TODO: 28+attackType (IA)
+
+                BattleManager.Process(this, defender);
+                this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
+            }
+            else
+            {
+                Log.Debug("{0} following {1}", this.Name, this.TargetMover.Name);
+                this.IsFollowing = true;
+                this.SendFollowTarget(1);
+            }
+        }
+
+        public override int GetWeaponAttackDamages(int weaponType)
+        {
+            return 0;
+        }
+
+        public override int GetDefense(Mover attacker, AttackFlags flags)
+        {
+            float armor = this.Data.NaturalArmor;
+
+            if (flags.HasFlag(AttackFlags.AF_MAGIC))
+                armor = this.Data.ResistMagic;
+
+            return (int)(armor / 7f + 1f);
+        }
+
+        public void DropItem()
+        {
+        }
+
+        public void DropGold()
+        {
+
+        }
+
         /// <summary>
-        /// Process the monster's moves
+        /// Process the monster's moves.
         /// </summary>
         private void ProcessMoves()
         {
@@ -127,6 +189,9 @@ namespace Hellion.World.Structures
             }
         }
 
+        /// <summary>
+        /// Process the monster's fight.
+        /// </summary>
         private void ProcessFight()
         {
             if (this.IsFighting && this.TargetMover != null)
@@ -145,7 +210,8 @@ namespace Hellion.World.Structures
                 else
                     this.SendFollowTarget(1f);
             }
-            else if (this.TargetMover == null)
+
+            if (this.TargetMover == null)
             {
                 this.SpeedFactor = 1;
                 this.SendSpeed(this.SpeedFactor);
@@ -158,6 +224,9 @@ namespace Hellion.World.Structures
             }
         }
 
+        /// <summary>
+        /// Check the monster respawn.
+        /// </summary>
         private void CheckRespawn()
         {
             if (this.IsSpawned)
@@ -179,51 +248,6 @@ namespace Hellion.World.Structures
                     this.Attributes[DefineAttributes.MP] = this.Data.AddMp;
                 }
             }
-        }
-
-        public override void Die()
-        {
-            this.despawnTime = Time.TimeInSeconds() + 5;
-            base.Die();
-        }
-
-        public override void Fight(Mover defender)
-        {
-            if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
-            {
-                Log.Debug("{0} is fighting {1}", this.Name, this.TargetMover.Name);
-                // Reset attack delay
-                this.attackTimer = Time.GetTick() + this.Data.ReAttackDelay;
-
-                int motion = 29; // TODO: 28+attackType (IA)
-                int damages = BattleManager.CalculateMeleeDamages(this, defender);
-
-                //BattleManager.Process(this, defender);
-                this.SendMeleeAttack(motion, this.TargetMover.ObjectId);
-            }
-            else
-            {
-                Log.Debug("{0} following {1}", this.Name, this.TargetMover.Name);
-                this.IsFollowing = true;
-                this.SendFollowTarget(1);
-            }
-
-            base.Fight(defender);
-        }
-
-        public override int GetWeaponAttackDamages(int weaponType)
-        {
-            return 0;
-        }
-
-        public override int GetDefense(Mover attacker, AttackFlags flags)
-        {
-            float armor = this.Data.NaturalArmor;
-
-            if (flags.HasFlag(AttackFlags.AF_MAGIC))
-                armor = this.Data.ResistMagic;
-
-            return (int)(armor / 7f + 1f);
         }
     }
 }
