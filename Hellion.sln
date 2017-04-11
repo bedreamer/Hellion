@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4A762668-BB7D-4D7F-983C-921CD39DE66C}"
 EndProject
@@ -11,26 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.travis.yml = .travis.yml
 		CHANGELOG.md = CHANGELOG.md
-		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hellion.Core", "src\Hellion.Core\Hellion.Core.xproj", "{9291EFE5-7E3A-476F-B1F3-F7CB5CBC6DF1}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hellion.Login", "src\Hellion.Login\Hellion.Login.xproj", "{645132CF-3F18-4DAD-9FC5-77CDD31B3A72}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B4F7502A-8F35-4D1D-A70B-7F4639CF957A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hellion.Cluster", "src\Hellion.Cluster\Hellion.Cluster.xproj", "{48662B07-F1A0-455E-8F98-B946A2E8CB70}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hellion.World", "src\Hellion.World\Hellion.World.xproj", "{9FD27F2B-8F25-4A1A-8F94-E374943C94A1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A5933BA6-8336-4953-A9D4-B10866715704}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DefinesToConst", "tools\DefinesToConst\DefinesToConst.xproj", "{91056050-6671-4762-9F75-71080A4FA520}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hellion.Database", "src\Hellion.Database\Hellion.Database.xproj", "{BCFD744E-AD8B-42EF-ABC3-9AEF8DFB8405}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packets", "packets", "{988315FD-2703-4427-8564-F26E8F5C2961}"
 	ProjectSection(SolutionItems) = preProject
@@ -40,6 +27,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packets", "packets", "{9883
 		docs\packets\README.md = docs\packets\README.md
 		docs\packets\World.md = docs\packets\World.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hellion.Core", "src\Hellion.Core\Hellion.Core.csproj", "{9291EFE5-7E3A-476F-B1F3-F7CB5CBC6DF1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hellion.Login", "src\Hellion.Login\Hellion.Login.csproj", "{645132CF-3F18-4DAD-9FC5-77CDD31B3A72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hellion.Cluster", "src\Hellion.Cluster\Hellion.Cluster.csproj", "{48662B07-F1A0-455E-8F98-B946A2E8CB70}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hellion.World", "src\Hellion.World\Hellion.World.csproj", "{9FD27F2B-8F25-4A1A-8F94-E374943C94A1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DefinesToConst", "tools\DefinesToConst\DefinesToConst.csproj", "{91056050-6671-4762-9F75-71080A4FA520}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hellion.Database", "src\Hellion.Database\Hellion.Database.csproj", "{BCFD744E-AD8B-42EF-ABC3-9AEF8DFB8405}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,12 +75,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{988315FD-2703-4427-8564-F26E8F5C2961} = {B4F7502A-8F35-4D1D-A70B-7F4639CF957A}
 		{9291EFE5-7E3A-476F-B1F3-F7CB5CBC6DF1} = {4A762668-BB7D-4D7F-983C-921CD39DE66C}
 		{645132CF-3F18-4DAD-9FC5-77CDD31B3A72} = {4A762668-BB7D-4D7F-983C-921CD39DE66C}
 		{48662B07-F1A0-455E-8F98-B946A2E8CB70} = {4A762668-BB7D-4D7F-983C-921CD39DE66C}
 		{9FD27F2B-8F25-4A1A-8F94-E374943C94A1} = {4A762668-BB7D-4D7F-983C-921CD39DE66C}
 		{91056050-6671-4762-9F75-71080A4FA520} = {A5933BA6-8336-4953-A9D4-B10866715704}
 		{BCFD744E-AD8B-42EF-ABC3-9AEF8DFB8405} = {4A762668-BB7D-4D7F-983C-921CD39DE66C}
-		{988315FD-2703-4427-8564-F26E8F5C2961} = {B4F7502A-8F35-4D1D-A70B-7F4639CF957A}
 	EndGlobalSection
 EndGlobal
