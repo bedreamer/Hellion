@@ -1,5 +1,6 @@
 ﻿using Hellion.Database.Structures;
 using Microsoft.EntityFrameworkCore;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 
 namespace Hellion.Database
 {
@@ -42,7 +43,7 @@ namespace Hellion.Database
                 this.dbPassword,
                 this.dbName);
 
-            optionsBuilder.UseMySql(connectionString);
+            optionsBuilder.UseMySQL(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
