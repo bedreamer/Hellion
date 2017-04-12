@@ -1,1 +1,1 @@
-dotnet run --project ../src/Hellion.World/project.json --configuration Release
+dotnet run --project ../src/Hellion.World/Hellion.World/.csproj --configuration Release
