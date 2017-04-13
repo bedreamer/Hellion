@@ -1,6 +1,8 @@
 ﻿using Hellion.Database.Structures;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySQL.Data.EntityFrameworkCore.Extensions;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hellion.Database
 {
@@ -10,7 +12,6 @@ namespace Hellion.Database
         private string dbUser;
         private string dbPassword;
         private string dbName;
-
         
         public DbSet<DbUser> Users { get; set; }
 

@@ -23,8 +23,6 @@ namespace Hellion.Login
         private const string LoginConfigurationFile = "config/login.json";
         private const string DatabaseConfigurationFile = "config/database.json";
 
-        private DatabaseContext dbContext;
-
         /// <summary>
         /// Gets the cluster servers list.
         /// </summary>
@@ -158,14 +156,12 @@ namespace Hellion.Login
             try
             {
                 Log.Info("Connecting to database...");
+                
 
-                this.dbContext = new DatabaseContext(this.DatabaseConfiguration.Ip,
+                DatabaseService.Initialize(this.DatabaseConfiguration.Ip,
                     this.DatabaseConfiguration.User,
                     this.DatabaseConfiguration.Password,
                     this.DatabaseConfiguration.DatabaseName);
-                this.dbContext.Database.EnsureCreated();
-
-                DatabaseService.InitializeDatabase(this.dbContext);
 
                 Log.Done("Connected to database!");
             }

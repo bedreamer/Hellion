@@ -7,7 +7,7 @@ namespace Hellion.Database
 {
     public static class DatabaseService
     {
-        private static DbContext dbContext;
+        private static DatabaseContext dbContext;
         private static IRepository<DbUser> userRepository;
         private static IRepository<DbCharacter> characterRepository;
         private static IRepository<DbItem> itemRepository;
@@ -69,7 +69,21 @@ namespace Hellion.Database
         /// <param name="context">Database context</param>
         public static void InitializeDatabase(DbContext context)
         {
-            dbContext = context;
+            dbContext = context as DatabaseContext;
+        }
+
+        /// <summary>
+        /// Initialize the database service context.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        /// <param name="databaseName"></param>
+        public static void Initialize(string ip, string user, string password, string databaseName)
+        {
+            dbContext = new DatabaseContext(ip, user, password, databaseName);
+
+            dbContext.Database.EnsureCreated();
         }
     }
 }
