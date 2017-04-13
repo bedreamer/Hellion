@@ -44,7 +44,7 @@ namespace Hellion.Login.ISC
         protected override void Idle()
         {
             while (this.IsRunning)
-                Thread.Sleep(100);
+                Thread.Sleep(5000);
         }
 
         /// <summary>

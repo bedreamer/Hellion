@@ -23,8 +23,6 @@ namespace Hellion.Cluster
         private const string ClusterConfigurationFile = "config/cluster.json";
         private const string DatabaseConfigurationFile = "config/database.json";
         
-        private DatabaseContext dbContext = null;
-
         private InterConnector connector;
         private Thread iscThread;
 
@@ -123,7 +121,7 @@ namespace Hellion.Cluster
         /// </summary>
         private void LoadConfiguration()
         {
-            Log.Info("Loading configuration...");
+            Log.Loading("Loading configuration...");
 
             if (File.Exists(ClusterConfigurationFile) == false)
                 JsonHelper.Save(new ClusterConfiguration(), ClusterConfigurationFile);
@@ -138,7 +136,7 @@ namespace Hellion.Cluster
 
             this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
-            Log.Done("Configuration loaded!");
+            Log.Done("Configuration loaded!\t\t\t");
         }
 
 
@@ -149,15 +147,14 @@ namespace Hellion.Cluster
         {
             try
             {
-                Log.Info("Connecting to database...");
-                this.dbContext = new DatabaseContext(this.DatabaseConfiguration.Ip, 
-                    this.DatabaseConfiguration.User, 
-                    this.DatabaseConfiguration.Password, 
-                    this.DatabaseConfiguration.DatabaseName);
-                this.dbContext.Database.EnsureCreated();
+                Log.Loading("Connecting to database...");
 
-                DatabaseService.InitializeDatabase(this.dbContext);
-                Log.Done("Connected to database!");
+                DatabaseService.Initialize(this.DatabaseConfiguration.Ip,
+                    this.DatabaseConfiguration.User,
+                    this.DatabaseConfiguration.Password,
+                    this.DatabaseConfiguration.DatabaseName);
+
+                Log.Done("Connected to database!\t\t\t");
             }
             catch (Exception e)
             {
@@ -170,7 +167,7 @@ namespace Hellion.Cluster
         /// </summary>
         private void ConnectToISC()
         {
-            Log.Info("Connecting to Inter-Server...");
+            Log.Loading("Connecting to Inter-Server...");
 
             this.connector = new InterConnector(this);
 
@@ -187,7 +184,7 @@ namespace Hellion.Cluster
                 Environment.Exit(0);
             }
 
-            Log.Done("Connected to Inter-Server!");
+            Log.Done("Connected to Inter-Server!\t\t\t");
         }
     }
 }

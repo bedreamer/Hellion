@@ -131,7 +131,7 @@ namespace Hellion.Login
         /// </summary>
         private void LoadConfiguration()
         {
-            Log.Info("Loading configuration...");
+            Log.Loading("Loading configuration...");
 
             if (File.Exists(LoginConfigurationFile) == false)
                 JsonHelper.Save(new LoginConfiguration(), LoginConfigurationFile);
@@ -146,7 +146,7 @@ namespace Hellion.Login
 
             this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
-            Log.Done("Configuration loaded!");
+            Log.Done("Configuration loaded!\t\t\t");
         }
 
         /// <summary>
@@ -156,14 +156,14 @@ namespace Hellion.Login
         {
             try
             {
-                Log.Info("Connecting to database...");
+                Log.Loading("Connecting to database...");
 
                 DatabaseService.Initialize(this.DatabaseConfiguration.Ip,
                     this.DatabaseConfiguration.User,
                     this.DatabaseConfiguration.Password,
                     this.DatabaseConfiguration.DatabaseName);
 
-                Log.Done("Connected to database!");
+                Log.Done("Connected to database!\t\t\t");
             }
             catch (Exception e)
             {

@@ -19,8 +19,7 @@ namespace Hellion.World
     {
         private const string WorldConfigurationFile = "config/world.json";
         private const string DatabaseConfigurationFile = "config/database.json";
-
-        private DatabaseContext dbContext;
+        
         private InterConnector connector;
         private Thread iscThread;
 
@@ -117,7 +116,7 @@ namespace Hellion.World
         /// </summary>
         private void LoadConfiguration()
         {
-            Log.Info("Loading configuration...");
+            Log.Loading("Loading configuration...");
 
             if (File.Exists(WorldConfigurationFile) == false)
                 JsonHelper.Save(new WorldConfiguration(), WorldConfigurationFile);
@@ -132,7 +131,7 @@ namespace Hellion.World
 
             this.DatabaseConfiguration = JsonHelper.Load<DatabaseConfiguration>(DatabaseConfigurationFile);
 
-            Log.Done("Configuration loaded!");
+            Log.Done("Configuration loaded!\t\t\t");
         }
 
 
@@ -143,17 +142,14 @@ namespace Hellion.World
         {
             try
             {
-                Log.Info("Connecting to database...");
+                Log.Loading("Connecting to database...");
 
-                this.dbContext = new DatabaseContext(this.DatabaseConfiguration.Ip,
+                DatabaseService.Initialize(this.DatabaseConfiguration.Ip,
                     this.DatabaseConfiguration.User,
                     this.DatabaseConfiguration.Password,
                     this.DatabaseConfiguration.DatabaseName);
-                this.dbContext.Database.EnsureCreated();
 
-                DatabaseService.InitializeDatabase(dbContext);
-
-                Log.Done("Connected to database!");
+                Log.Done("Connected to database!\t\t\t");
             }
             catch (Exception e)
             {
@@ -166,7 +162,7 @@ namespace Hellion.World
         /// </summary>
         private void ConnectToISC()
         {
-            Log.Info("Connecting to Inter-Server...");
+            Log.Loading("Connecting to Inter-Server...");
 
             this.connector = new InterConnector(this);
 
@@ -183,7 +179,7 @@ namespace Hellion.World
                 Environment.Exit(0);
             }
 
-            Log.Done("Connected to Inter-Server!");
+            Log.Done("Connected to Inter-Server!\t\t\t");
         }
     }
 }
