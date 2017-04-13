@@ -1,7 +1,9 @@
 ﻿using Hellion.Database.Structures;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySQL.Data.EntityFrameworkCore.Extensions;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hellion.Database
@@ -53,6 +55,9 @@ namespace Hellion.Database
                 .HasOne(i => i.Character)
                 .WithMany(c => c.Items)
                 .HasForeignKey(i => i.CharacterId);
+
+            foreach (IMutableEntityType entity in modelBuilder.Model.GetEntityTypes())
+                entity.Relational().TableName = entity.Relational().TableName.ToLower();
 
             //foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             //{

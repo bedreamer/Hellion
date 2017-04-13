@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hellion.Login
 {
@@ -71,7 +72,7 @@ namespace Hellion.Login
 
             while (this.IsRunning)
             {
-                Console.ReadKey();
+                Thread.Sleep(5000);
             }
         }
 
@@ -156,7 +157,6 @@ namespace Hellion.Login
             try
             {
                 Log.Info("Connecting to database...");
-                
 
                 DatabaseService.Initialize(this.DatabaseConfiguration.Ip,
                     this.DatabaseConfiguration.User,

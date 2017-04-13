@@ -71,7 +71,7 @@ namespace Hellion.Cluster
 
             while (this.IsRunning)
             {
-                Console.ReadKey();
+                Thread.Sleep(5000);
             }
         }
 

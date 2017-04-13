@@ -5,10 +5,9 @@ namespace Hellion.Database.Repository
 {
     public class UserRepository : RepositoryBase<DbUser>
     {
-        public UserRepository(DatabaseContext dbContext)
+        public UserRepository(DbContext dbContext)
             : base(dbContext)
         {
-            this.dbSet = dbContext.Users;
         }
     }
 }

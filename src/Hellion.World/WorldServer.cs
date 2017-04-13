@@ -64,7 +64,7 @@ namespace Hellion.World
 
             while (this.IsRunning)
             {
-                Console.ReadKey();
+                Thread.Sleep(5000);
             }
         }
 
