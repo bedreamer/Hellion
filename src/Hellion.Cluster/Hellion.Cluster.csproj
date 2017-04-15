@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ether.Network" Version="1.1.7" />
+    <PackageReference Include="Ether.Network" Version="1.1.8-pre" />
   </ItemGroup>
 
 </Project>

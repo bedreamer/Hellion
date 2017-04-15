@@ -46,7 +46,7 @@ namespace Hellion.Database
                 this.dbPassword,
                 this.dbName);
 
-            optionsBuilder.UseMySQL(connectionString);
+            optionsBuilder.UseMySql(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,8 +56,8 @@ namespace Hellion.Database
                 .WithMany(c => c.Items)
                 .HasForeignKey(i => i.CharacterId);
 
-            foreach (IMutableEntityType entity in modelBuilder.Model.GetEntityTypes())
-                entity.Relational().TableName = entity.Relational().TableName.ToLower();
+            //foreach (IMutableEntityType entity in modelBuilder.Model.GetEntityTypes())
+            //    entity.Relational().TableName = entity.Relational().TableName.ToLower();
 
             //foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             //{

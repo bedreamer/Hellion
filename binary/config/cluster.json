@@ -1,6 +1,7 @@
 {
   "ip": "127.0.0.1",
   "port": 28000,
+  "name": "Cluster 1",
   "buildVersion": null,
   "accountVerification": false,
   "enableLoginProtect": true,
