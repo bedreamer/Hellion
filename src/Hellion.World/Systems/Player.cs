@@ -222,6 +222,11 @@ namespace Hellion.World.Systems
 
             this.StatPoints = dbCharacter.StatPoints;
             this.SkillPoints = dbCharacter.SkillPoints;
+
+            if (this.Attributes[DefineAttributes.HP] <= 0)
+            {
+                // Change to revival zone
+            }
             
             // Initialize quests, guild, friends, skills etc...
         }

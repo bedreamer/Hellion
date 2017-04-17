@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="Ether.Network" Version="1.1.8-pre" />
+    <PackageReference Include="Ether.Network" Version="1.1.8-pre2" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">

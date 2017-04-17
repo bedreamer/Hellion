@@ -13,6 +13,13 @@ namespace Hellion.World.Systems
 {
     public class Map
     {
+        private const int RI_TRIGGER = 10;
+        private const int RI_ATTRIBUTE = 11;
+        private const int RI_BEGIN = 12;
+        private const int RI_REVIVAL = 13;
+        private const int RI_STRUCTURE = 14;
+        private const int RI_PLACE = 15;
+
         public const float MaxHeight = 270f;
 
         private Thread updateThread;
@@ -115,6 +122,16 @@ namespace Hellion.World.Systems
                 }
 
                 this.regions.Add(respawner);
+            }
+
+            foreach (RgnRegion3 rgnElement in rgn.Elements.Where(r => r is RgnRegion3))
+            {
+                switch (rgnElement.Index)
+                {
+                    case RI_REVIVAL:
+                        // Load revival region
+                        break;
+                }
             }
 
             // Load .lnd
