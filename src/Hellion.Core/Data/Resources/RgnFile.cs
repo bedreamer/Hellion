@@ -163,7 +163,7 @@ namespace Hellion.Core.Data.Resources
             this.TeleportPosition = new Vector3(regionData[12], regionData[13], regionData[14]);
             this.TopLeftPosition = new Vector3(regionData[15], "", regionData[16]);
             this.BottomRightPosition = new Vector3(regionData[17], "", regionData[18]);
-            this.Key = regionData[19];
+            this.Key = regionData[19].Trim('"');
             this.TargetKey = int.Parse(regionData[20]) == 1;
             this.ItemId = int.Parse(regionData[21]);
             this.ItemCount = int.Parse(regionData[22]);

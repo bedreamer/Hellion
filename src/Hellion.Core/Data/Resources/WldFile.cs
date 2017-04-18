@@ -34,6 +34,16 @@ namespace Hellion.Core.Data.Resources
         /// Gets a value that indicates if we can fly in the world.
         /// </summary>
         public bool Fly { get; private set; }
+
+        /// <summary>
+        /// Gets the revival map id.
+        /// </summary>
+        public int RevivalMapId { get; private set; }
+
+        /// <summary>
+        /// Gets the revival key.
+        /// </summary>
+        public string RevivalKey { get; private set; }
         
         /// <summary>
         /// Creates a new WldFile instance.
@@ -72,6 +82,10 @@ namespace Hellion.Core.Data.Resources
                             break;
                         case "mpu":
                             this.MPU = int.Parse(lineArray[1]);
+                            break;
+                        case "revival":
+                            this.RevivalMapId = int.Parse(lineArray[1]);
+                            this.RevivalKey = lineArray[2].Trim('"');
                             break;
                     }
                 }

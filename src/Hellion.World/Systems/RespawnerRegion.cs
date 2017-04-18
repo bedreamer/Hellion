@@ -10,8 +10,8 @@ namespace Hellion.World.Systems
         /// </summary>
         public int RespawnTime { get; private set; }
 
-        public RespawnerRegion(Vector3 middle, Vector3 northWest, Vector3 southEast, int respawnTime)
-            : base(middle, northWest, southEast)
+        public RespawnerRegion(Vector3 position, Vector3 northWest, Vector3 southEast, int respawnTime)
+            : base(position, northWest, southEast)
         {
             this.RespawnTime = respawnTime;
         }

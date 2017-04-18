@@ -14,6 +14,7 @@ namespace Hellion.World.Systems
         private long despawnTime;
         private long respawnTime;
         private Region region;
+        private Vector3 originalPosition;
 
         /// <summary>
         /// Gets the monster name.
@@ -129,7 +130,7 @@ namespace Hellion.World.Systems
 
         public override void Fight(Mover defender)
         {
-            if (this.Position.IsInCircle(this.TargetMover.Position, 2)) // DEBUG arrived to target
+            if (this.Position.IsInCircle(this.TargetMover.Position, 0.2f)) // DEBUG arrived to target
             {
                 Log.Debug("{0} is fighting {1}", this.Name, this.TargetMover.Name);
                 // Reset attack delay
@@ -181,6 +182,7 @@ namespace Hellion.World.Systems
             {
                 this.moveTimer = Time.TimeInSeconds() + RandomHelper.Random(15, 30);
                 this.DestinationPosition = this.region.GetRandomPosition();
+                this.originalPosition = this.DestinationPosition.Clone();
                 this.Angle = Vector3.AngleBetween(this.Position, this.DestinationPosition);
 
                 this.MovingFlags = ObjectState.OBJSTA_NONE;
@@ -194,6 +196,12 @@ namespace Hellion.World.Systems
         /// </summary>
         private void ProcessFight()
         {
+            if (this.Position.GetDistance2D(this.originalPosition) > 65f)
+            {
+                Log.Debug("Remove target");
+                this.RemoveTarget();
+            }
+
             if (this.IsFighting && this.TargetMover != null)
             {
                 if (this.SpeedFactor != 2)

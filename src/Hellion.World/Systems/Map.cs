@@ -35,6 +35,8 @@ namespace Hellion.World.Systems
 
         private ICollection<Region> regions;
 
+        private WldFile worldInformations;
+
         /// <summary>
         /// Gets the map id.
         /// </summary>
@@ -48,12 +50,18 @@ namespace Hellion.World.Systems
         /// <summary>
         /// Gets the map width.
         /// </summary>
-        public int Width { get; private set; }
+        public int Width
+        {
+            get { return this.worldInformations.Width; }
+        }
 
         /// <summary>
         /// Gets the map length.
         /// </summary>
-        public int Length { get; private set; }
+        public int Length
+        {
+            get { return this.worldInformations.Length; }
+        }
 
         /// <summary>
         /// Get the map heights.
@@ -87,11 +95,8 @@ namespace Hellion.World.Systems
 
             // Load .wld
             byte[] wldFileData = File.ReadAllBytes(wldMapPath);
-            var wld = new WldFile(wldFileData);
-            wld.Read();
-
-            this.Width = wld.Width;
-            this.Length = wld.Length;
+            this.worldInformations = new WldFile(wldFileData);
+            this.worldInformations.Read();
 
             // Load .dyo
             byte[] dyoFileData = File.ReadAllBytes(dyoMapPath);
@@ -129,7 +134,15 @@ namespace Hellion.World.Systems
                 switch (rgnElement.Index)
                 {
                     case RI_REVIVAL:
-                        // Load revival region
+
+                        int revivalMapId = this.worldInformations.RevivalMapId == 0 ? this.Id : this.worldInformations.RevivalMapId;
+                        var revivalRegion = new RevivalRegion(rgnElement.Position, 
+                            rgnElement.TopLeftPosition, 
+                            rgnElement.BottomRightPosition, 
+                            revivalMapId, 
+                            this.worldInformations.RevivalKey);
+                        this.regions.Add(revivalRegion);
+
                         break;
                 }
             }
